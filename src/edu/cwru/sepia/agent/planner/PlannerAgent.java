@@ -2,7 +2,6 @@ package edu.cwru.sepia.agent.planner;
 
 import edu.cwru.sepia.action.Action;
 import edu.cwru.sepia.agent.Agent;
-import edu.cwru.sepia.agent.minimax.AstarAgent.MapLocation;
 import edu.cwru.sepia.agent.planner.actions.StripsAction;
 import edu.cwru.sepia.environment.model.history.History;
 import edu.cwru.sepia.environment.model.state.State;
@@ -104,7 +103,7 @@ public class PlannerAgent extends Agent {
     	}
     	
     	public float nodeCost(GameState loc) {
-    		if (this.isEmpty()) 
+    		/*if (this.isEmpty()) 
         		return 0;
         	Iterator<GameState> it = this.iterator();
         	while (it.hasNext()) {
@@ -112,13 +111,13 @@ public class PlannerAgent extends Agent {
     			if(location.x == loc.x && location.y == loc.y) {
     				return location.cost;
     			}
-    	    }
+    	    }*/
         	return 0;
     	}
     	
     	public boolean contains(GameState loc) {
         	
-        	if (this.isEmpty()) 
+        	/*if (this.isEmpty()) 
         		return false;
         	Iterator<GameState> it = this.iterator();
         	while (it.hasNext()) {
@@ -126,7 +125,7 @@ public class PlannerAgent extends Agent {
     			if(location.x == loc.x && location.y == loc.y) {
     				return true;
     			}
-    	    }
+    	    }*/
         	return false;
         }
     	
@@ -138,7 +137,7 @@ public class PlannerAgent extends Agent {
     	 */
     	public void update(GameState loc)
     	{
-    		if (this.isEmpty()) 
+    		/*if (this.isEmpty()) 
         		return;
         	Iterator<GameState> it = this.iterator();
         	while (it.hasNext()) {
@@ -148,7 +147,7 @@ public class PlannerAgent extends Agent {
     				this.add(loc);
     				return;
     			}
-    	    }
+    	    }*/
         	return;
     	}
     }
@@ -167,12 +166,12 @@ public class PlannerAgent extends Agent {
         Set<GameState> closedList = new HashSet<GameState>();
         	
         startState.cost = 0;
-        startState.estTotalCost = startState.cost + heuristic(startState, goal);
+        startState.estTotalCost = startState.cost + startState.heuristic();
         openList.add(startState);
         	
         GameState current = null;
         GameState nextState = null;
-        float temp_g = 0;
+        double temp_g = 0;
         
         while(!openList.isEmpty())
         {
@@ -186,7 +185,7 @@ public class PlannerAgent extends Agent {
         	current = openList.poll();
 	       	closedList.add(current);
 	        	
-        	if (current.equals(goal))
+        	if (current.isGoal())
         	{
         		//reconstruct path & return it
         		Stack<StripsAction> foundPath = reconstructPath(current, startState);
@@ -194,12 +193,12 @@ public class PlannerAgent extends Agent {
                	return foundPath;
        		}
         		
-        	GameState[] nextStateList;	
-       		nextStateList = getNextStates(current);
+        	List<GameState> nextStateList;	
+       		nextStateList = current.generateChildren();
 
-       		for(int x = 0; x < nextStateList.length && nextStateList[x] != null; x++)
+       		for(int x = 0; x < nextStateList.size() && nextStateList.get(x) != null; x++)
        		{
-       			nextState = nextStateList[x];
+       			nextState = nextStateList.get(x);
         			
        			if (closedList.contains(nextState))
        			{
@@ -212,7 +211,7 @@ public class PlannerAgent extends Agent {
        			{
        				nextState.parent = current;
        				nextState.cost = temp_g;
-       				nextState.estTotalCost = nextState.cost + heuristic(nextState, goal);
+       				nextState.estTotalCost = nextState.cost + nextState.heuristic();
         				
        				if(!(openList.contains(nextState)))
        				{
@@ -241,25 +240,18 @@ public class PlannerAgent extends Agent {
     	while(!(current.parent.equals(start)))
     	{
     		current = current.parent;
-    		path.add(current);
+    		path.add(current.prevAction);
     	}
     	
     	return path;
     }
     
     //gets cost to perform a certain action from the resulting state
-    private float actionCost(GameState startState) {
+    private double actionCost(GameState startState) {
     	return 0;
     }
-    
-    private float heuristic(GameState current, GameState goal)
-    {
-    	return 0;
-    }
-    
-    private GameState[] getNextStates(GameState current) {
-    	
-    }
+
+
 
     /**
      * This has been provided for you. Each strips action is converted to a string with the toString method. This means
