@@ -41,8 +41,8 @@ public class GameState implements Comparable<GameState> {
 	private UnitState units[];
 	private int mapXExtent;
 	private int mapYExtent;
-	private GameState parent;
-	private float cost, estTotalCost;
+	public GameState parent;
+	public float cost, estTotalCost;
 	
 	//An inner class to keep track of the states of the resources
 	/*class ResourcePile {

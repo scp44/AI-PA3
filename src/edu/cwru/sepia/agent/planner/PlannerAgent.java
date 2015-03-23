@@ -2,6 +2,7 @@ package edu.cwru.sepia.agent.planner;
 
 import edu.cwru.sepia.action.Action;
 import edu.cwru.sepia.agent.Agent;
+import edu.cwru.sepia.agent.minimax.AstarAgent.MapLocation;
 import edu.cwru.sepia.agent.planner.actions.StripsAction;
 import edu.cwru.sepia.environment.model.history.History;
 import edu.cwru.sepia.environment.model.state.State;
@@ -39,7 +40,7 @@ public class PlannerAgent extends Agent {
     @Override
     public Map<Integer, Action> initialStep(State.StateView stateView, History.HistoryView historyView) {
 
-        Stack<StripsAction> plan = AstarSearch(new GameState(stateView, playernum, requiredGold, requiredWood, buildPeasants));
+        Stack<StripsAction> plan = Astar(new GameState(stateView, playernum, requiredGold, requiredWood, buildPeasants));
 
         if(plan == null) {
             System.err.println("No plan was found");
@@ -81,18 +82,183 @@ public class PlannerAgent extends Agent {
     public void loadPlayerData(InputStream inputStream) {
 
     }
+    
+    //stuff for the AStar 
+    class OpenListCompare implements Comparator<GameState>
+    {
+    	public int compare(GameState loc1, GameState loc2) {
+    		if (loc1.estTotalCost < loc2.estTotalCost)
+    			return -1;
+    		else if (loc1.estTotalCost == loc2.estTotalCost)
+    			return 0;
+    		else
+    			return 1;
+    	}
+    }
+    
+    class PriorityQueueList extends PriorityQueue<GameState>
+    {
+    	public PriorityQueueList(int initLength)
+    	{
+    		super(initLength, new OpenListCompare());
+    	}
+    	
+    	public float nodeCost(GameState loc) {
+    		if (this.isEmpty()) 
+        		return 0;
+        	Iterator<GameState> it = this.iterator();
+        	while (it.hasNext()) {
+        		GameState location = it.next();
+    			if(location.x == loc.x && location.y == loc.y) {
+    				return location.cost;
+    			}
+    	    }
+        	return 0;
+    	}
+    	
+    	public boolean contains(GameState loc) {
+        	
+        	if (this.isEmpty()) 
+        		return false;
+        	Iterator<GameState> it = this.iterator();
+        	while (it.hasNext()) {
+        		GameState location = it.next();
+    			if(location.x == loc.x && location.y == loc.y) {
+    				return true;
+    			}
+    	    }
+        	return false;
+        }
+    	
+    	/**
+    	 * Removes the previous entry for the specified location and replaces
+    	 * it with the new one to the queue.
+    	 * 
+    	 * @param loc
+    	 */
+    	public void update(GameState loc)
+    	{
+    		if (this.isEmpty()) 
+        		return;
+        	Iterator<GameState> it = this.iterator();
+        	while (it.hasNext()) {
+        		GameState location = it.next();
+    			if(location.x == loc.x && location.y == loc.y) {
+    				this.remove(location);
+    				this.add(loc);
+    				return;
+    			}
+    	    }
+        	return;
+    	}
+    }
 
     /**
-     * Perform an A* search of the game graph. This should return your plan as a stack of actions. This is essentially
+     * Perform an A*  of the game graph. This should return your plan as a stack of actions. This is essentially
      * the same as your first assignment. The implementations should be very similar. The difference being that your
      * nodes are now GameState objects not MapLocation objects.
      *
      * @param startState The state which is being planned from
      * @return The plan or null if no plan is found.
      */
-    private Stack<StripsAction> AstarSearch(GameState startState) {
+    private Stack<StripsAction> Astar(GameState startState) {
         // TODO: Implement me!
+    	PriorityQueueList openList = new PriorityQueueList(1);
+        Set<GameState> closedList = new HashSet<GameState>();
+        	
+        startState.cost = 0;
+        startState.estTotalCost = startState.cost + heuristic(startState, goal);
+        openList.add(startState);
+        	
+        GameState current = null;
+        GameState nextState = null;
+        float temp_g = 0;
+        
+        while(!openList.isEmpty())
+        {
+        	//remove invalid nodes from the list until first valid one is found
+        	//may not need this function if all goes according to plan...
+        	while(openList.peek().estTotalCost == -1)
+        	{
+        		openList.remove();
+        	}
+        		
+        	current = openList.poll();
+	       	closedList.add(current);
+	        	
+        	if (current.equals(goal))
+        	{
+        		//reconstruct path & return it
+        		Stack<StripsAction> foundPath = reconstructPath(current, startState);
+
+               	return foundPath;
+       		}
+        		
+        	GameState[] nextStateList;	
+       		nextStateList = getNextStates(current);
+
+       		for(int x = 0; x < nextStateList.length && nextStateList[x] != null; x++)
+       		{
+       			nextState = nextStateList[x];
+        			
+       			if (closedList.contains(nextState))
+       			{
+       				continue;
+       			}
+        			
+       			temp_g = current.cost + actionCost(nextState);
+        			
+       			if(!(openList.contains(nextState)) || temp_g < openList.nodeCost(nextState))
+       			{
+       				nextState.parent = current;
+       				nextState.cost = temp_g;
+       				nextState.estTotalCost = nextState.cost + heuristic(nextState, goal);
+        				
+       				if(!(openList.contains(nextState)))
+       				{
+       					openList.add(nextState);
+       				}
+       				else
+       				{
+       					openList.update(nextState);
+       				}
+       			}
+       		}
+       	}    	
+    	//no path. Return empty path
+    	System.out.println("No path found using Astar!");
         return null;
+    }
+    
+    private Stack<StripsAction> reconstructPath(GameState current, GameState start)
+    {
+    	Stack<StripsAction> path = new Stack<StripsAction>();
+
+    	if (current.parent == null) {
+    		return path;
+    	}
+
+    	while(!(current.parent.equals(start)))
+    	{
+    		current = current.parent;
+    		path.add(current);
+    	}
+    	
+    	return path;
+    }
+    
+    //gets cost to perform a certain action from the resulting state
+    private float actionCost(GameState startState) {
+    	return 0;
+    }
+    
+    private float heuristic(GameState current, GameState goal)
+    {
+    	return 0;
+    }
+    
+    private GameState[] getNextStates(GameState current) {
+    	
     }
 
     /**
