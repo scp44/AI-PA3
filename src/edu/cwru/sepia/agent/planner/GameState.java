@@ -2,6 +2,7 @@ package edu.cwru.sepia.agent.planner;
 
 
 
+import edu.cwru.sepia.agent.planner.actions.StripsAction;
 import edu.cwru.sepia.environment.model.state.ResourceNode;
 import edu.cwru.sepia.environment.model.state.State;
 
@@ -42,7 +43,8 @@ public class GameState implements Comparable<GameState> {
 	private int mapXExtent;
 	private int mapYExtent;
 	public GameState parent;
-	public float cost, estTotalCost;
+	public double cost, estTotalCost;
+	public StripsAction prevAction;
 	
 	//An inner class to keep track of the states of the resources
 	/*class ResourcePile {
