@@ -1,7 +1,12 @@
 package edu.cwru.sepia.agent.planner;
 
+
+
+import edu.cwru.sepia.environment.model.state.ResourceNode;
 import edu.cwru.sepia.environment.model.state.State;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -23,6 +28,80 @@ import java.util.List;
  */
 public class GameState implements Comparable<GameState> {
 
+	
+	
+	private int requiredGold;
+	private int requiredWood;
+	private int collectedGold;
+	private int collectedWood;
+	private boolean buildPeasant;
+	private int playerNum;
+	private List<Integer> unitIDs = new ArrayList<Integer>();
+	private HashSet<Position> resourceLocations = new HashSet<Position>();
+	private UnitState units[];
+	private int mapXExtent;
+	private int mapYExtent;
+	private GameState parent;
+	private float cost, estTotalCost;
+	
+	//An inner class to keep track of the states of the resources
+	/*class ResourcePile {
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result + x;
+			result = prime * result + y;
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (!(obj instanceof ResourcePile)) {
+				return false;
+			}
+			ResourcePile other = (ResourcePile) obj;
+			if (!getOuterType().equals(other.getOuterType())) {
+				return false;
+			}
+			if (x != other.x) {
+				return false;
+			}
+			if (y != other.y) {
+				return false;
+			}
+			return true;
+		}
+		int x, y;
+		ResourceNode.Type resourceType;
+		int amountLeft;
+		public ResourcePile(int x, int y, ResourceNode.Type type, int ammount) {
+			this.x = x;
+			this.y = y;
+			this.resourceType = type;
+			amountLeft = ammount;
+		}
+		private GameState getOuterType() {
+			return GameState.this;
+		}
+	}*/
+	
+	//An inner class to keep track of the state of the peasant units
+	class UnitState {
+		int x, y;
+		int carriedResAmount;
+		public UnitState(int x, int y, int resAmount) {
+			this.x = x;
+			this.y = y;
+			this.carriedResAmount = resAmount;
+		}
+	}
     /**
      * Construct a GameState from a stateview object. This is used to construct the initial search node. All other
      * nodes should be constructed from the another constructor you create or by factory functions that you create.
@@ -34,7 +113,30 @@ public class GameState implements Comparable<GameState> {
      * @param buildPeasants True if the BuildPeasant action should be considered
      */
     public GameState(State.StateView state, int playernum, int requiredGold, int requiredWood, boolean buildPeasants) {
-        // TODO: Implement me!
+        this.requiredGold = requiredGold;
+        this.requiredWood = requiredWood;
+        this.collectedGold = 0;
+        this.collectedWood = 0;
+        this.buildPeasant = buildPeasant;
+        this.playerNum = playerNum;
+        //Get the peasant units of the player
+        unitIDs = state.getUnitIds(playernum);
+        units = new UnitState[unitIDs.size()];
+        int i = 0;
+        for (Integer unitID : unitIDs) {
+        	units[i++] = new UnitState(state.getUnit(unitID).getXPosition(), state.getUnit(unitID).getXPosition(),
+        			state.getUnit(unitID).getCargoAmount());
+        }
+        //Iterate over all the resources and store their locations, type, and amount into a hashset
+        List<Integer> resourceIDs = state.getAllResourceIds();
+        for (Integer resourceID : resourceIDs) {
+			ResourceNode.ResourceView resource = state
+					.getResourceNode(resourceID);
+			resourceLocations.add(new Position(resource.getXPosition(),
+					resource.getYPosition(), resource.getType(), resource.getAmountRemaining()));
+		}
+		mapXExtent = state.getXExtent();
+		mapYExtent = state.getYExtent();
     }
 
     /**
