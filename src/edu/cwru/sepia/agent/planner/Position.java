@@ -1,5 +1,6 @@
 package edu.cwru.sepia.agent.planner;
 
+import edu.cwru.sepia.environment.model.state.ResourceNode;
 import edu.cwru.sepia.util.Direction;
 
 import java.util.ArrayList;
@@ -18,10 +19,15 @@ public class Position {
 
     public final int x;
     public final int y;
-
-    public Position(int x, int y) {
+    
+    //Added in these two fields to help keep track of the resources
+    public final ResourceNode.Type type;
+    public final int amountLeft;
+    public Position(int x, int y, ResourceNode.Type type, int amount) {
         this.x = x;
         this.y = y;
+        this.type = type;
+        this.amountLeft = amount;
     }
 
     /**
@@ -32,6 +38,8 @@ public class Position {
     public Position(Position pos) {
         x = pos.x;
         y = pos.y;
+        this.type = pos.type;
+        this.amountLeft = pos.amountLeft;
     }
 
     /**
@@ -41,7 +49,7 @@ public class Position {
      * @return Position one step away
      */
     public Position move(Direction direction) {
-        return new Position(direction.xComponent() + x, direction.yComponent() + y);
+        return new Position(direction.xComponent() + x, direction.yComponent() + y, type, amountLeft);
     }
 
     /**
