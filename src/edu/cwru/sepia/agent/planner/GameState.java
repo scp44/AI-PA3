@@ -150,7 +150,10 @@ public class GameState implements Comparable<GameState> {
      */
     public boolean isGoal() {
         // TODO: Implement me!
-        return false;
+    	if(collectedGold >= requiredGold && collectedWood >= requiredWood)
+    		return true;
+    	else
+    		return false;
     }
 
     /**
