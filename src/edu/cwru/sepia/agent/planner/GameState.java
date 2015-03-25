@@ -201,6 +201,7 @@ public class GameState implements Comparable<GameState> {
      */
     public boolean isGoal() {
         return (this.collectedGold >= this.requiredGold && this.collectedWood >= this.requiredWood);
+
     }
 
     /**
@@ -274,7 +275,20 @@ public class GameState implements Comparable<GameState> {
      */
     public double heuristic() {
         // TODO: Implement me!
-        return 0.0;
+    	int heuristic = 0;
+    	//if(this.prevAction = Move(peasant, loc))
+    		//heuristic = Math.max(Math.abs(loc.x-peasant.x), Math.abs(loc.y-peasant.y));
+    	//else if(this.prevAction = gather(resource)){
+    		//if(resource == gold && collectedGold >= requiredGold)
+    			//heuristic = 999999999;
+    		//else if(resource == wood && collectedWood >= requiredWood)
+    			//heuristic = 999999999;
+    		//else
+    			//heuristic = 1;	//good thing to do. Yay
+    	//}
+    	//else //depositing
+    		//heuristic = 1;
+    	return heuristic;
     }
 
     /**

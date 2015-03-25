@@ -102,6 +102,7 @@ public class PlannerAgent extends Agent {
     		super(initLength, new OpenListCompare());
     	}
     	
+
     	public double nodeCost(GameState loc) {
     		/*if (this.isEmpty()) 
         		return 0;
@@ -115,7 +116,7 @@ public class PlannerAgent extends Agent {
         	return 0;
     	}
     	
-    	public boolean contains(GameState loc) {
+    	public boolean contains(GameState state) {
         	
         	/*if (this.isEmpty()) 
         		return false;
@@ -246,6 +247,8 @@ public class PlannerAgent extends Agent {
     	return path;
     }
     
+
+
 
 
 
