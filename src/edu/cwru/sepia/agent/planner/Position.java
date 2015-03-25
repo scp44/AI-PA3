@@ -21,8 +21,17 @@ public class Position {
     public final int y;
     
     //Added in these two fields to help keep track of the resources
-    public final ResourceNode.Type type;
-    public final int amountLeft;
+    public ResourceNode.Type type;
+    public int amountLeft;
+    
+    //A constructor for the peasant position
+    public Position(int x, int y) {
+    	this.x = x;
+    	this.y = y;
+    	type = null;
+    	amountLeft = 0;
+    }
+    //Another constructor for the resource location
     public Position(int x, int y, ResourceNode.Type type, int amount) {
         this.x = x;
         this.y = y;
