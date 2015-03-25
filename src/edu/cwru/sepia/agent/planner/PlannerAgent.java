@@ -102,7 +102,7 @@ public class PlannerAgent extends Agent {
     		super(initLength, new OpenListCompare());
     	}
     	
-    	public float nodeCost(GameState loc) {
+    	public float nodeCost(GameState state) {
     		/*if (this.isEmpty()) 
         		return 0;
         	Iterator<GameState> it = this.iterator();
@@ -115,7 +115,7 @@ public class PlannerAgent extends Agent {
         	return 0;
     	}
     	
-    	public boolean contains(GameState loc) {
+    	public boolean contains(GameState state) {
         	
         	/*if (this.isEmpty()) 
         		return false;
@@ -248,6 +248,7 @@ public class PlannerAgent extends Agent {
     
     //gets cost to perform a certain action from the resulting state
     private double actionCost(GameState startState) {
+    	 
     	return 0;
     }
 
