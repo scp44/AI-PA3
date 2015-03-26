@@ -21,6 +21,18 @@ public class HarvestAction implements StripsAction {
 		this.unitIndex = unitIndex;
 		this.carriedAmount = unitCarriedAmount;
 	}
+	
+	public String toString() {
+		return "Harvest(" + this.unitIndex + ", " + resLoc.x + ", " + resLoc.y + ", " + resLoc.type.toString() + ")";
+	}
+	
+	public int getID() {
+		return this.resLoc.resourceID;
+	}
+	
+	public String actionType() {
+		return this.actionType;
+	}
 	@Override
 	public boolean preconditionsMet(GameState state) {
 		//Check to make sure that the resource location is within the boundaries of the map and that the
@@ -32,7 +44,7 @@ public class HarvestAction implements StripsAction {
 	@Override
 	public GameState apply(GameState state) {
 		//If the preconditions are met:
-		if(preconditionsMet(state)) {
+		/*if(preconditionsMet(state)) {
 			GameState newState = new GameState(state);
 			if (resLoc.type.equals(ResourceNode.Type.GOLD_MINE)) {
 				//Decrement the amount of resource remaining at that mine
@@ -54,7 +66,7 @@ public class HarvestAction implements StripsAction {
 			
 			newState.units[unitIndex].x = resLoc.x;
 			newState.units[unitIndex].y = resLoc.y;
-		}
+		}*/
 		return null;
 	}
 

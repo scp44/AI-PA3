@@ -38,5 +38,10 @@ public interface StripsAction {
      */
     public GameState apply(GameState state);
     
+    //A helper method that returns a string with the type of action
+    public String actionType();
+    
+    //Another helper method that returns the resource ID
+    public int getID();
     
 }

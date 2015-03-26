@@ -139,6 +139,7 @@ public class GameState implements Comparable<GameState> {
         
         //Get the peasant units of the player
         unitIDs = state.getUnitIds(playernum);
+        System.out.println(unitIDs.get(0));
         units = new UnitState[unitIDs.size()];
         int i = 0;
         //In the units array we only store the peasants, the townhall we will store in a Position object, rather
@@ -162,11 +163,11 @@ public class GameState implements Comparable<GameState> {
 					.getResourceNode(resourceID);
 			if (resource.getType() == ResourceNode.Type.GOLD_MINE) {
 				goldLocations.add(new Position(resource.getXPosition(),
-						resource.getYPosition(), resource.getType(), resource.getAmountRemaining()));
+						resource.getYPosition(), resource.getType(), resource.getID(), resource.getAmountRemaining()));
 			}
 			else if (resource.getType() == ResourceNode.Type.TREE) {
 				woodLocations.add(new Position(resource.getXPosition(),
-						resource.getYPosition(), resource.getType(), resource.getAmountRemaining()));
+						resource.getYPosition(), resource.getType(), resource.getID(), resource.getAmountRemaining()));
 			}
 			
 		}
@@ -182,8 +183,8 @@ public class GameState implements Comparable<GameState> {
      * @return true if the goal conditions are met in this instance of game state.
      */
     public boolean isGoal() {
-        //return (this.collectedGold >= this.requiredGold && this.collectedWood >= this.requiredWood);
-    	return this.collectedGold >= this.requiredGold;
+        return (this.collectedGold >= this.requiredGold && this.collectedWood >= this.requiredWood);
+    	//return this.collectedGold >= this.requiredGold;
 
     }
 
@@ -209,11 +210,12 @@ public class GameState implements Comparable<GameState> {
             		for(Position tempPos : tempState.goldLocations) {
             			if (tempPos.equals(p)) {
             				tempPos.amountLeft -= 100;
+            				System.out.println("Subtracting 100 from position: " + p.x + " " + p.y);
             			}
             		}
             		tempState.units[i].carriedResAmount = 100;
             		tempState.units[i].resType = "Gold";
-            		tempState.collectedGold += 100;
+            		//tempState.collectedGold += 100;
             		tempState.prevAction = new HarvestAction(p, i, mapXExtent, mapYExtent, units[i].carriedResAmount);
             		childStates.add(tempState);
             	}
@@ -233,7 +235,7 @@ public class GameState implements Comparable<GameState> {
             		}
             		tempState.units[i].carriedResAmount = 100;
             		tempState.units[i].resType = "Wood";
-            		tempState.collectedWood += 100;
+            		//tempState.collectedWood += 100;
             		tempState.prevAction = new HarvestAction(p, i, mapXExtent, mapYExtent, units[i].carriedResAmount);
             		childStates.add(tempState);
             	}
@@ -245,7 +247,7 @@ public class GameState implements Comparable<GameState> {
             		tempState.units[i].x = this.townhallPos.x;
             		tempState.units[i].y = this.townhallPos.y;
             		tempState.collectedGold += units[i].carriedResAmount;
-            		tempState.prevAction = new DepositAction(townhallPos, mapXExtent, mapYExtent, units[i].carriedResAmount);
+            		tempState.prevAction = new DepositAction(townhallPos, i, "Gold", mapXExtent, mapYExtent, units[i].carriedResAmount);
             		tempState.units[i].carriedResAmount = 0;
             		childStates.add(tempState);
             	}
@@ -254,7 +256,7 @@ public class GameState implements Comparable<GameState> {
             		tempState.units[i].x = this.townhallPos.x;
             		tempState.units[i].y = this.townhallPos.y;
             		tempState.collectedWood += units[i].carriedResAmount;
-            		tempState.prevAction = new DepositAction(townhallPos, mapXExtent, mapYExtent, units[i].carriedResAmount);
+            		tempState.prevAction = new DepositAction(townhallPos, i, "Wood", mapXExtent, mapYExtent, units[i].carriedResAmount);
             		tempState.units[i].carriedResAmount = 0;
             		childStates.add(tempState);
             	}

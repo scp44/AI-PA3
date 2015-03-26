@@ -22,6 +22,7 @@ public class Position {
     
     //Added in these two fields to help keep track of the resources
     public ResourceNode.Type type;
+    public int resourceID;
     public int amountLeft;
     
     //A constructor for the peasant position
@@ -32,9 +33,10 @@ public class Position {
     	amountLeft = 0;
     }
     //Another constructor for the resource location
-    public Position(int x, int y, ResourceNode.Type type, int amount) {
+    public Position(int x, int y, ResourceNode.Type type, int ID, int amount) {
         this.x = x;
         this.y = y;
+        this.resourceID = ID;
         this.type = type;
         this.amountLeft = amount;
     }
@@ -58,7 +60,7 @@ public class Position {
      * @return Position one step away
      */
     public Position move(Direction direction) {
-        return new Position(direction.xComponent() + x, direction.yComponent() + y, type, amountLeft);
+        return new Position(direction.xComponent() + x, direction.yComponent() + y, type, this.resourceID, amountLeft);
     }
 
     /**

@@ -92,8 +92,21 @@ public class PEAgent extends Agent {
      */
     @Override
     public Map<Integer, Action> middleStep(State.StateView stateView, History.HistoryView historyView) {
-        // TODO: Implement me!
-        return null;
+        HashMap<Integer, Action> actions = new HashMap<Integer, Action>();
+        for(int unitId : stateView.getUnitIds(playernum)) {
+        	Unit.UnitView unit = stateView.getUnit(unitId);
+            String unitType = unit.getTemplateView().getName().toLowerCase();
+        	//Make sure we are only look at peasants
+            if(unitType.equals("peasant")) {
+            	//Check if it has completed an action or if is not performing an action
+            	if(unit.getCurrentDurativeAction() == null || unit.getCurrentDurativeProgress() >= 1) {
+            		StripsAction act = plan.pop();
+            		//act.preconditionsMet(state)
+            		actions.put(peasantIdMap.get(unitId), createSepiaAction(act));
+            	}
+            }
+        }
+        return actions;
     }
 
     /**
@@ -102,7 +115,14 @@ public class PEAgent extends Agent {
      * @return SEPIA representation of same action
      */
     private Action createSepiaAction(StripsAction action) {
-        return null;
+    	if (action.actionType() == "Deposit") {
+    		return Action.createCompoundDeposit(peasantIdMap.get(1), townhallId);
+    	}
+    	else if (action.actionType() == "Harvest") {
+    		return Action.createCompoundGather(peasantIdMap.get(1), action.getID());
+    	}
+    	else
+    		return null;
     }
 
     @Override
