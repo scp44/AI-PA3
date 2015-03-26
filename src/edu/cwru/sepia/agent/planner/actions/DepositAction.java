@@ -5,7 +5,7 @@ import edu.cwru.sepia.agent.planner.Position;
 
 public class DepositAction implements StripsAction {
 
-	public String actionType = "Move";
+	public String actionType = "Deposit";
 	public Position townHallLoc;
 	public int mapX, mapY;
 	public int carriedAmount;

@@ -170,37 +170,39 @@ public class Position {
         return null;
     }
 
-    /**
-     * Utility function. Allows you to check equality with pos1.equals(pos2) instead of manually checking if x and y
-     * are the same.
-     *
-     * @param o Position to check equality with
-     * @return true if x and y components are equal, false otherwise
-     */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof Position)) {
+			return false;
+		}
+		Position other = (Position) obj;
+		if (amountLeft != other.amountLeft) {
+			return false;
+		}
+		if (x != other.x) {
+			return false;
+		}
+		if (y != other.y) {
+			return false;
+		}
+		return true;
+	}
 
-        Position position = (Position) o;
-
-        if (x != position.x) return false;
-        if (y != position.y) return false;
-
-        return true;
-    }
-
-    /**
-     * Utility function. Necessary for use in a HashSet or HashMap.
-     *
-     * @return hashcode for x and y value
-     */
     @Override
-    public int hashCode() {
-        int result = x;
-        result = 31 * result + y;
-        return result;
-    }
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + amountLeft;
+		result = prime * result + x;
+		result = prime * result + y;
+		return result;
+	}
 
     /**
      * @return human readable string representation.

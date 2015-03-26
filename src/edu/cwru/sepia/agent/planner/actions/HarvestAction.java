@@ -4,6 +4,7 @@ import java.util.HashSet;
 
 import edu.cwru.sepia.agent.planner.GameState;
 import edu.cwru.sepia.agent.planner.Position;
+import edu.cwru.sepia.environment.model.state.ResourceNode;
 
 public class HarvestAction implements StripsAction {
 
@@ -11,11 +12,13 @@ public class HarvestAction implements StripsAction {
 	public Position resLoc;
 	public int mapX, mapY;
 	public int carriedAmount;
+	public int unitIndex;
 	
-	public HarvestAction(Position resource, int mapX, int mapY, int unitCarriedAmount) {
+	public HarvestAction(Position resource, int unitIndex, int mapX, int mapY, int unitCarriedAmount) {
 		this.mapX = mapX;
 		this.mapY = mapY;
 		this.resLoc = resource;
+		this.unitIndex = unitIndex;
 		this.carriedAmount = unitCarriedAmount;
 	}
 	@Override
@@ -28,7 +31,30 @@ public class HarvestAction implements StripsAction {
 
 	@Override
 	public GameState apply(GameState state) {
-		// TODO Auto-generated method stub
+		//If the preconditions are met:
+		if(preconditionsMet(state)) {
+			GameState newState = new GameState(state);
+			if (resLoc.type.equals(ResourceNode.Type.GOLD_MINE)) {
+				//Decrement the amount of resource remaining at that mine
+				for(Position tempPos : newState.goldLocations) {
+	    			if (tempPos.equals(resLoc)) {
+	    				tempPos.amountLeft -= 100;
+	    			}
+	    		}
+			}
+			
+			else if (resLoc.type.equals(ResourceNode.Type.TREE)) {
+				//Decrement the amount of resource remaining at that tree
+				for(Position tempPos : newState.woodLocations) {
+	    			if (tempPos.equals(resLoc)) {
+	    				tempPos.amountLeft -= 100;
+	    			}
+	    		}
+			}
+			
+			newState.units[unitIndex].x = resLoc.x;
+			newState.units[unitIndex].y = resLoc.y;
+		}
 		return null;
 	}
 

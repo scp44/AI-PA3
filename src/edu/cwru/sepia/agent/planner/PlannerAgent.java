@@ -85,10 +85,10 @@ public class PlannerAgent extends Agent {
     //stuff for the AStar 
     class OpenListCompare implements Comparator<GameState>
     {
-    	public int compare(GameState loc1, GameState loc2) {
-    		if (loc1.estTotalCost < loc2.estTotalCost)
+    	public int compare(GameState state1, GameState state2) {
+    		if (state1.estTotalCost < state2.estTotalCost)
     			return -1;
-    		else if (loc1.estTotalCost == loc2.estTotalCost)
+    		else if (state1.estTotalCost == state2.estTotalCost)
     			return 0;
     		else
     			return 1;
@@ -97,10 +97,10 @@ public class PlannerAgent extends Agent {
     
     class PriorityQueueList extends PriorityQueue<GameState>
     {
-    	public PriorityQueueList(int initLength)
+    	/*public PriorityQueueList(int initLength)
     	{
     		super(initLength, new OpenListCompare());
-    	}
+    	}*/
     	
 
     	public double nodeCost(GameState loc) {
@@ -116,19 +116,6 @@ public class PlannerAgent extends Agent {
         	return 0;
     	}
     	
-    	public boolean contains(GameState state) {
-        	
-        	/*if (this.isEmpty()) 
-        		return false;
-        	Iterator<GameState> it = this.iterator();
-        	while (it.hasNext()) {
-        		GameState location = it.next();
-    			if(location.x == loc.x && location.y == loc.y) {
-    				return true;
-    			}
-    	    }*/
-        	return false;
-        }
     	
     	/**
     	 * Removes the previous entry for the specified location and replaces
@@ -163,7 +150,8 @@ public class PlannerAgent extends Agent {
      */
     private Stack<StripsAction> Astar(GameState startState) {
         // TODO: Implement me!
-    	PriorityQueueList openList = new PriorityQueueList(1);
+    	System.out.println("Astar called");
+    	PriorityQueue<GameState> openList = new PriorityQueue<GameState>();
         Set<GameState> closedList = new HashSet<GameState>();
         	
         startState.cost = 0;
@@ -188,6 +176,7 @@ public class PlannerAgent extends Agent {
 	        	
         	if (current.isGoal())
         	{
+        		System.out.println("GOAL FOUND!!");
         		//reconstruct path & return it
         		Stack<StripsAction> foundPath = reconstructPath(current, startState);
 
@@ -208,7 +197,7 @@ public class PlannerAgent extends Agent {
         			
        			temp_g = current.cost + nextState.getCost();
         			
-       			if(!(openList.contains(nextState)) || temp_g < openList.nodeCost(nextState))
+       			if(!(openList.contains(nextState)) || temp_g < nextState.cost)
        			{
        				nextState.parent = current;
        				nextState.cost = temp_g;
@@ -220,7 +209,14 @@ public class PlannerAgent extends Agent {
        				}
        				else
        				{
-       					openList.update(nextState);
+       					//Update the GameState in the priority with the lesser cost value
+       					Iterator<GameState> it = openList.iterator();
+       					while (it.hasNext()) {
+       						GameState updateState = it.next();
+       						if(updateState.equals(nextState)) {
+       							updateState.cost = nextState.cost;
+       						}
+       					}
        				}
        			}
        		}

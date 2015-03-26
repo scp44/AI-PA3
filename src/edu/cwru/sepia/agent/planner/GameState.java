@@ -43,8 +43,8 @@ public class GameState implements Comparable<GameState> {
 	private boolean buildPeasant;
 	private int playerNum;
 	private List<Integer> unitIDs = new ArrayList<Integer>();
-	private HashSet<Position> goldLocations = new HashSet<Position>();
-	private HashSet<Position> woodLocations = new HashSet<Position>();
+	public HashSet<Position> goldLocations = new HashSet<Position>();
+	public HashSet<Position> woodLocations = new HashSet<Position>();
 	public UnitState units[];
 	private int mapXExtent;
 	private int mapYExtent;
@@ -55,54 +55,23 @@ public class GameState implements Comparable<GameState> {
 
 	
 	//An inner class to keep track of the state of the peasant units
-	class UnitState {
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + getOuterType().hashCode();
-			result = prime * result + carriedResAmount;
-			result = prime * result + x;
-			result = prime * result + y;
-			return result;
-		}
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (!(obj instanceof UnitState)) {
-				return false;
-			}
-			UnitState other = (UnitState) obj;
-			if (!getOuterType().equals(other.getOuterType())) {
-				return false;
-			}
-			if (carriedResAmount != other.carriedResAmount) {
-				return false;
-			}
-			if (x != other.x) {
-				return false;
-			}
-			if (y != other.y) {
-				return false;
-			}
-			return true;
-		}
+	public class UnitState {
+		
 		
 		
 		//Fields to keep track of an individual peasant
-		int x, y;
-		int carriedResAmount;
-		String resType;
+		public int x, y;
+		public int carriedResAmount;
+		public String resType;
 		public UnitState(int x, int y, int resAmount, String resType) {
 			this.x = x;
 			this.y = y;
 			this.carriedResAmount = resAmount;
-			this.resType = new String(resType);
+			if(resType == null) {
+				this.resType = null;
+			}
+			else 
+				this.resType = new String(resType);
 		}
 		//A separate constructor to perform deep copy
 		public UnitState(UnitState unitState) {
@@ -125,14 +94,25 @@ public class GameState implements Comparable<GameState> {
 		this.mapXExtent = state.mapXExtent;
 		this.mapYExtent = state.mapYExtent;
 		this.unitIDs.addAll(0, state.unitIDs);
-		this.goldLocations = new HashSet<Position>(state.goldLocations);
-		this.woodLocations = new HashSet<Position>(state.woodLocations);
-		for (int i = 0; i < state.units.length; i++) {
+		//this.goldLocations = new HashSet<Position>(state.goldLocations);
+		for(Position p : state.goldLocations) {
+			this.goldLocations.add(p);
+		}
+		//this.woodLocations = new HashSet<Position>(state.woodLocations);
+		for(Position p : state.woodLocations) {
+			this.woodLocations.add(p);
+		}
+		this.units = new UnitState[state.units.length];
+		for (int i = 0; i < state.units.length - 1; i++) {
 			this.units[i] = new UnitState(state.units[i]);
 		}
 		//Are you sure you want to copy the GameState's parent pointer as well???
-		this.parent = new GameState(state);
-		this.cost = getCost();
+		this.parent = state;
+		this.cost = getCost() + parent.cost;
+		this.estTotalCost = this.cost + this.heuristic();
+		//This is the only case where we can directly shallow copy the parent pointer
+		//because the townhall location is constant for all game states
+		this.townhallPos = state.townhallPos;
 		//StripsAction prevAction;
 	}
     /**
@@ -153,7 +133,7 @@ public class GameState implements Comparable<GameState> {
         this.buildPeasant = buildPeasant;
         this.playerNum = playerNum;
         this.cost = 0.0;
-        this.estTotalCost = 0.0;
+        this.estTotalCost = this.cost + this.heuristic();
         this.prevAction = null;
         this.parent = null;
         
@@ -161,10 +141,12 @@ public class GameState implements Comparable<GameState> {
         unitIDs = state.getUnitIds(playernum);
         units = new UnitState[unitIDs.size()];
         int i = 0;
+        //In the units array we only store the peasants, the townhall we will store in a Position object, rather
+        //than a UnitState
         for (Integer unitID : unitIDs) {
         	if(state.getUnit(unitID).getTemplateView().getName().equals("Peasant")) {
         		units[i++] = new UnitState(state.getUnit(unitID).getXPosition(), state.getUnit(unitID).getYPosition(),
-            			0, null);
+            			0, "None");
         	}
         	else if(state.getUnit(unitID).getTemplateView().getName().toLowerCase().equals("townhall")) {
         		this.townhallPos = new Position(state.getUnit(unitID).getXPosition(), 
@@ -200,7 +182,8 @@ public class GameState implements Comparable<GameState> {
      * @return true if the goal conditions are met in this instance of game state.
      */
     public boolean isGoal() {
-        return (this.collectedGold >= this.requiredGold && this.collectedWood >= this.requiredWood);
+        //return (this.collectedGold >= this.requiredGold && this.collectedWood >= this.requiredWood);
+    	return this.collectedGold >= this.requiredGold;
 
     }
 
@@ -213,32 +196,49 @@ public class GameState implements Comparable<GameState> {
     public List<GameState> generateChildren() {
     	Position resPosition = null;
     	List<GameState> childStates = new ArrayList<GameState>();
-    	for (int i = 0; i < units.length; i++) {
+    	for (int i = 0; i < units.length - 1; i++) {
     		//Check if the peasant is not next to a resource and is not carrying anything, 
     		//then add the move to harvest that resource
             for (Position p : goldLocations) {
-            	if (!p.isAdjacent(new Position(units[i].x, units[i].y)) && units[i].carriedResAmount == 0) {
+            	if (!p.isAdjacent(new Position(units[i].x, units[i].y)) && units[i].carriedResAmount == 0 && p.amountLeft > 0) {
             		GameState tempState = new GameState(this);
             		tempState.units[i].x = p.x;
             		tempState.units[i].y = p.y;
+            		//Iterate over the child's goldLocations, find the gold mine we are harvesting from, and decrement the amount
+            		//of gold left
+            		for(Position tempPos : tempState.goldLocations) {
+            			if (tempPos.equals(p)) {
+            				tempPos.amountLeft -= 100;
+            			}
+            		}
+            		tempState.units[i].carriedResAmount = 100;
+            		tempState.units[i].resType = "Gold";
             		tempState.collectedGold += 100;
-            		tempState.prevAction = new HarvestAction(p, mapXExtent, mapYExtent, units[i].carriedResAmount);
+            		tempState.prevAction = new HarvestAction(p, i, mapXExtent, mapYExtent, units[i].carriedResAmount);
             		childStates.add(tempState);
             	}
             }
             //Same thing for wood
             for (Position p : woodLocations) {
-            	if (!p.isAdjacent(new Position(units[i].x, units[i].y)) && units[i].carriedResAmount == 0) {
+            	if (!p.isAdjacent(new Position(units[i].x, units[i].y)) && units[i].carriedResAmount == 0 && p.amountLeft > 0) {
             		GameState tempState = new GameState(this);
             		tempState.units[i].x = p.x;
             		tempState.units[i].y = p.y;
+            		//Iterate over the child's woodLocations, find the tree we are harvesting from, and decrement the amount
+            		//of wood left
+            		for(Position tempPos : tempState.woodLocations) {
+            			if (tempPos.equals(p)) {
+            				tempPos.amountLeft -= 100;
+            			}
+            		}
             		tempState.units[i].carriedResAmount = 100;
             		tempState.units[i].resType = "Wood";
-            		tempState.prevAction = new HarvestAction(p, mapXExtent, mapYExtent, units[i].carriedResAmount);
+            		tempState.collectedWood += 100;
+            		tempState.prevAction = new HarvestAction(p, i, mapXExtent, mapYExtent, units[i].carriedResAmount);
             		childStates.add(tempState);
             	}
             }
-            //If the unit have 100 resources, then it can deposit
+            //If the unit has 100 resources, then it can deposit
             if (units[i].carriedResAmount == 100) {
             	if (units[i].resType == "Gold") {
             		GameState tempState = new GameState(this);
@@ -260,9 +260,9 @@ public class GameState implements Comparable<GameState> {
             	}
             }
     	}
-    	
+
         
-        return null;
+        return childStates;
     }
 
     /**
@@ -275,7 +275,7 @@ public class GameState implements Comparable<GameState> {
      */
     public double heuristic() {
         // TODO: Implement me!
-    	int heuristic = 0;
+    	double heuristic = 0;
     	//if(this.prevAction = Move(peasant, loc))
     		//heuristic = Math.max(Math.abs(loc.x-peasant.x), Math.abs(loc.y-peasant.y));
     	//else if(this.prevAction = gather(resource)){
@@ -288,7 +288,7 @@ public class GameState implements Comparable<GameState> {
     	//}
     	//else //depositing
     		//heuristic = 1;
-    	return heuristic;
+    	return -0.1 * this.collectedGold + 100;
     }
 
     /**
@@ -301,7 +301,7 @@ public class GameState implements Comparable<GameState> {
     public double getCost() {
     	double totalStepsMoved = 0.0;
     	//Iterate over the peasants and compute how far they moved from their parent state (using euclidean distance)
-        for (int j = 0; j < units.length; j++) {
+        for (int j = 0; j < units.length - 1; j++) {
         	Position unitPos = new Position(units[j].x, units[j].y);
         	//Note, we add 1 to the cost to account for the harvest/deposit action, which takes 1 step
         	totalStepsMoved += 1 + unitPos.euclideanDistance(new Position(this.parent.units[j].x, this.parent.units[j].y));
@@ -319,7 +319,12 @@ public class GameState implements Comparable<GameState> {
     @Override
     public int compareTo(GameState o) {
         // TODO: Implement me!
-        return 0;
+    	if (this.estTotalCost < o.estTotalCost)
+			return -1;
+		else if (this.estTotalCost == o.estTotalCost)
+			return 0;
+		else
+			return 1;
     }
 
     @Override
@@ -340,8 +345,10 @@ public class GameState implements Comparable<GameState> {
 		if (collectedWood != other.collectedWood) {
 			return false;
 		}
-		if (!Arrays.equals(units, other.units)) {
-			return false;
+		for (int j = 0; j < units.length - 1; j++) {
+			if (!(units[j].x == other.units[j].x && units[j].y == other.units[j].y && units[j].carriedResAmount == other.units[j].carriedResAmount
+					&& units[j].resType == other.units[j].resType))
+				return false;
 		}
 		return true;
 	}
