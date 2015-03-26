@@ -151,7 +151,7 @@ public class PlannerAgent extends Agent {
     private Stack<StripsAction> Astar(GameState startState) {
         // TODO: Implement me!
     	System.out.println("Astar called");
-    	PriorityQueue<GameState> openList = new PriorityQueue<GameState>();
+    	PriorityQueue<GameState> openList = new PriorityQueue<GameState>(new OpenListCompare());
         Set<GameState> closedList = new HashSet<GameState>();
         	
         startState.cost = 0;
@@ -242,11 +242,6 @@ public class PlannerAgent extends Agent {
     	
     	return path;
     }
-    
-
-
-
-
 
     /**
      * This has been provided for you. Each strips action is converted to a string with the toString method. This means
