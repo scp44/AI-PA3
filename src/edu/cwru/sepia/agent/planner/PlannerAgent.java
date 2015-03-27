@@ -154,6 +154,7 @@ public class PlannerAgent extends Agent {
     	PriorityQueue<GameState> openList = new PriorityQueue<GameState>(new OpenListCompare());
         Set<GameState> closedList = new HashSet<GameState>();
         	
+        System.out.println("Start state: " + startState.buildPeasant);
         startState.cost = 0;
         startState.estTotalCost = startState.cost + startState.heuristic();
         openList.add(startState);
@@ -234,6 +235,7 @@ public class PlannerAgent extends Agent {
     		return path;
     	}
 
+    	path.add(current.prevAction);
     	while(!(current.parent.equals(start)))
     	{
     		current = current.parent;

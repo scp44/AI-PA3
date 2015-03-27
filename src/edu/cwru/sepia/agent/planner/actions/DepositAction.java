@@ -34,6 +34,10 @@ public class DepositAction implements StripsAction {
 	public int getID() {
 		return -1;
 	}
+	
+	public int getNumMoves(GameState state) {
+		return 0;
+	}
 	@Override
 	public GameState apply(GameState state) {
 		// TODO Auto-generated method stub

@@ -33,6 +33,10 @@ public class HarvestAction implements StripsAction {
 	public String actionType() {
 		return this.actionType;
 	}
+	
+	public int getNumMoves(GameState state) {
+		return 0;
+	}
 	@Override
 	public boolean preconditionsMet(GameState state) {
 		//Check to make sure that the resource location is within the boundaries of the map and that the

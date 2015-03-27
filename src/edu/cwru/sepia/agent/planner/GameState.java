@@ -40,7 +40,7 @@ public class GameState implements Comparable<GameState> {
 	private int requiredWood;
 	public int collectedGold;
 	public int collectedWood;
-	private boolean buildPeasant;
+	public boolean buildPeasant;
 	private int playerNum;
 	private List<Integer> unitIDs = new ArrayList<Integer>();
 	public HashSet<Position> goldLocations = new HashSet<Position>();
@@ -89,18 +89,19 @@ public class GameState implements Comparable<GameState> {
 		this.requiredGold = state.requiredGold;
 		this.requiredWood = state.requiredWood;
 		this.buildPeasant = state.buildPeasant;
+		this.playerNum = state.playerNum;
 		this.collectedGold = state.collectedGold;
 		this.collectedWood = state.collectedWood;
 		this.mapXExtent = state.mapXExtent;
 		this.mapYExtent = state.mapYExtent;
 		this.unitIDs.addAll(0, state.unitIDs);
-		//this.goldLocations = new HashSet<Position>(state.goldLocations);
+		this.goldLocations = new HashSet<Position>();
 		for(Position p : state.goldLocations) {
-			this.goldLocations.add(p);
+			this.goldLocations.add(new Position(p.x, p.y, p.type, p.resourceID, p.amountLeft));
 		}
-		//this.woodLocations = new HashSet<Position>(state.woodLocations);
+		this.woodLocations = new HashSet<Position>();
 		for(Position p : state.woodLocations) {
-			this.woodLocations.add(p);
+			this.woodLocations.add(new Position(p.x, p.y, p.type, p.resourceID, p.amountLeft));
 		}
 		this.units = new UnitState[state.units.length];
 		for (int i = 0; i < state.units.length - 1; i++) {
@@ -108,7 +109,7 @@ public class GameState implements Comparable<GameState> {
 		}
 		//Are you sure you want to copy the GameState's parent pointer as well???
 		this.parent = state;
-		this.cost = getCost() + parent.cost;
+		this.cost = this.getCost() + this.parent.cost;
 		this.estTotalCost = this.cost + this.heuristic();
 		//This is the only case where we can directly shallow copy the parent pointer
 		//because the townhall location is constant for all game states
@@ -130,8 +131,8 @@ public class GameState implements Comparable<GameState> {
         this.requiredWood = requiredWood;
         this.collectedGold = 0;
         this.collectedWood = 0;
-        this.buildPeasant = buildPeasant;
-        this.playerNum = playerNum;
+        this.buildPeasant = buildPeasants;
+        this.playerNum = playernum;
         this.cost = 0.0;
         this.estTotalCost = this.cost + this.heuristic();
         this.prevAction = null;

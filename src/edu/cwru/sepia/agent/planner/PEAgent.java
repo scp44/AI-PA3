@@ -23,6 +23,7 @@ public class PEAgent extends Agent {
     // The plan being executed
     private Stack<StripsAction> plan = null;
 
+    
     // maps the real unit Ids to the plan's unit ids
     // when you're planning you won't know the true unit IDs that sepia assigns. So you'll use placeholders (1, 2, 3).
     // this maps those placeholders to the actual unit IDs.
@@ -101,7 +102,6 @@ public class PEAgent extends Agent {
             	//Check if it has completed an action or if is not performing an action
             	if(unit.getCurrentDurativeAction() == null || unit.getCurrentDurativeProgress() >= 1) {
             		StripsAction act = plan.pop();
-            		//act.preconditionsMet(state)
             		actions.put(peasantIdMap.get(unitId), createSepiaAction(act));
             	}
             }
