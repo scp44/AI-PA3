@@ -34,9 +34,10 @@ public class HarvestAction implements StripsAction {
 		return this.actionType;
 	}
 	
-	public int getNumMoves(GameState state) {
-		return 0;
+	public int getUnitIndex() {
+		return this.unitIndex;
 	}
+	
 	@Override
 	public boolean preconditionsMet(GameState state) {
 		//Check to make sure that the resource location is within the boundaries of the map and that the
@@ -47,30 +48,8 @@ public class HarvestAction implements StripsAction {
 
 	@Override
 	public GameState apply(GameState state) {
-		//If the preconditions are met:
-		/*if(preconditionsMet(state)) {
-			GameState newState = new GameState(state);
-			if (resLoc.type.equals(ResourceNode.Type.GOLD_MINE)) {
-				//Decrement the amount of resource remaining at that mine
-				for(Position tempPos : newState.goldLocations) {
-	    			if (tempPos.equals(resLoc)) {
-	    				tempPos.amountLeft -= 100;
-	    			}
-	    		}
-			}
-			
-			else if (resLoc.type.equals(ResourceNode.Type.TREE)) {
-				//Decrement the amount of resource remaining at that tree
-				for(Position tempPos : newState.woodLocations) {
-	    			if (tempPos.equals(resLoc)) {
-	    				tempPos.amountLeft -= 100;
-	    			}
-	    		}
-			}
-			
-			newState.units[unitIndex].x = resLoc.x;
-			newState.units[unitIndex].y = resLoc.y;
-		}*/
+		//I am not going to use this method, because in the generateChildren() method of GameState I'm already keeping track
+		//of the resulting state of applying this action 
 		return null;
 	}
 

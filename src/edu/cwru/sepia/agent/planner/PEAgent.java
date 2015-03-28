@@ -97,13 +97,18 @@ public class PEAgent extends Agent {
         for(int unitId : stateView.getUnitIds(playernum)) {
         	Unit.UnitView unit = stateView.getUnit(unitId);
             String unitType = unit.getTemplateView().getName().toLowerCase();
-        	//Make sure we are only look at peasants
-            if(unitType.equals("peasant")) {
+        	//For each peasant, create a harvest or deposit action
+            if(unitType.equals("peasant") && (plan.peek().actionType() == "Deposit" || plan.peek().actionType() == "Harvest")) {
             	//Check if it has completed an action or if is not performing an action
             	if(unit.getCurrentDurativeAction() == null || unit.getCurrentDurativeProgress() >= 1) {
             		StripsAction act = plan.pop();
             		actions.put(peasantIdMap.get(unitId), createSepiaAction(act));
             	}
+            }
+            //Else, for the townhall, create a buildpeasant action
+            else if (unitType.equals("townhall") && plan.peek().actionType() == "BuildPeasant") {
+            	StripsAction act = plan.pop();
+            	actions.put(townhallId, createSepiaAction(act));
             }
         }
         return actions;
@@ -121,7 +126,9 @@ public class PEAgent extends Agent {
     	else if (action.actionType() == "Harvest") {
     		return Action.createCompoundGather(peasantIdMap.get(1), action.getID());
     	}
-    	else
+    	else if (action.actionType() == "BuildPeasant") {
+    		return Action.createCompoundProduction(townhallId, peasantTemplateId);
+    	}
     		return null;
     }
 

@@ -44,8 +44,8 @@ public interface StripsAction {
     //Another helper method that returns the resource ID
     public int getID();
     
-    //A work-around for the getDurativeAction() and getCurrentDurativeProgress() not working
-    //by manually storing the amount of steps to perform an action
-    public int getNumMoves(GameState state);
+    //A helper method that returns the index of the peasant executing this action
+    public int getUnitIndex();
+
     
 }

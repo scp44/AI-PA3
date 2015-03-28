@@ -22,7 +22,8 @@ public class DepositAction implements StripsAction {
 	}
 	
 	public String toString() {
-		return "Deposit(" + this.unitIndex + ", " + carriedAmount + ")";
+		return "Deposit(" + this.unitIndex + ", " + carriedAmount + ", " + this.resType + ", " + 
+				this.townHallLoc.x + ", " + this.townHallLoc.y + ")";
 	}
 
 	public String actionType() {
@@ -35,12 +36,13 @@ public class DepositAction implements StripsAction {
 		return -1;
 	}
 	
-	public int getNumMoves(GameState state) {
-		return 0;
+	public int getUnitIndex() {
+		return this.unitIndex;
 	}
 	@Override
 	public GameState apply(GameState state) {
-		// TODO Auto-generated method stub
+		//I am not going to use this method, because in the generateChildren() method of GameState I'm already keeping track
+		//of the resulting state of applying this action 
 		return null;
 	}
 
@@ -49,10 +51,13 @@ public class DepositAction implements StripsAction {
 		//Precondition: the unit must be carrying the right resource, and must carry > 0 of that resource
 		//and that the destination (town hall) is within the boundaries of the map
 		
-		return state.units[0].carriedResAmount > 0 && state.units[0].resType == this.resType &&
-				townHallLoc.x >= 0 && townHallLoc.x <= mapX && townHallLoc.y >= 0 && townHallLoc.y <= mapY;
+		//return state.units[0].carriedResAmount > 0 && state.units[0].resType == this.resType &&
+				//townHallLoc.x >= 0 && townHallLoc.x <= mapX && townHallLoc.y >= 0 && townHallLoc.y <= mapY;
+		
+		
 		//return (townHallLoc.x >= 0 && townHallLoc.x <= mapX && townHallLoc.y >= 0 && townHallLoc.y <= mapY
 		//		&& carriedAmount > 0);
+		return false;
 	}
 
 }

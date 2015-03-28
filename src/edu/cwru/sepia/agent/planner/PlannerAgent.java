@@ -234,12 +234,16 @@ public class PlannerAgent extends Agent {
     	if (current.parent == null) {
     		return path;
     	}
-
-    	path.add(current.prevAction);
+    	for(int k = 0; k < current.prevActions.size(); k++) {
+    		path.add(current.prevActions.get(k));
+    	}
+    	
     	while(!(current.parent.equals(start)))
     	{
     		current = current.parent;
-    		path.add(current.prevAction);
+    		for(int k = 0; k < current.prevActions.size(); k++) {
+        		path.add(current.prevActions.get(k));
+        	}
     	}
     	
     	return path;
