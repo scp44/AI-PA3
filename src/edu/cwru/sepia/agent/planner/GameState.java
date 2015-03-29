@@ -265,7 +265,7 @@ public class GameState implements Comparable<GameState> {
             		for(Position tempPos : tempState.goldLocations) {
             			if (tempPos.equals(p)) {
             				tempPos.amountLeft -= 100;
-            				System.out.println("Subtracting 100 from position: " + p.x + " " + p.y);
+            				//System.out.println("Subtracting 100 from position: " + p.x + " " + p.y);
             			}
             		}
             		tempState.units.get(i).carriedResAmount = 100;
@@ -319,12 +319,14 @@ public class GameState implements Comparable<GameState> {
     	}
     	
     	//Check if there's enough resources to build a peasant
-    	if(this.collectedGold >= 400 && this.foodAmount > 0) {
+    	/*if(this.collectedGold >= 400 && this.foodAmount > 0) {
     		GameState tempState = new GameState(this);
     		tempState.collectedGold -= 400;
     		tempState.foodAmount -= 1;
+    		tempState.units.add(this.units.size(), new UnitState(this.townhallPos.x, this.townhallPos.y, 0, "None"));
     		tempState.prevActions.add(new BuildPeasant(this.townhallID));
-    	}
+    		childStates.add(tempState);
+    	}*/
 
         
         return childStates;
@@ -353,7 +355,8 @@ public class GameState implements Comparable<GameState> {
     	//}
     	//else //depositing
     		//heuristic = 1;
-    	return  -0.1 * this.collectedGold + (-0.1 * this.collectedWood) + 100;
+    	//return  -0.1 * this.collectedGold + (-0.1 * this.collectedWood) + 100;
+    	return 10000 * this.foodAmount;
     }
 
     /**

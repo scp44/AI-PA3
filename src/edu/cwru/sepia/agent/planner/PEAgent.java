@@ -1,6 +1,8 @@
 package edu.cwru.sepia.agent.planner;
 
 import edu.cwru.sepia.action.Action;
+import edu.cwru.sepia.action.ActionFeedback;
+import edu.cwru.sepia.action.ActionResult;
 import edu.cwru.sepia.agent.Agent;
 import edu.cwru.sepia.agent.planner.actions.*;
 import edu.cwru.sepia.environment.model.history.History;
@@ -94,11 +96,47 @@ public class PEAgent extends Agent {
     @Override
     public Map<Integer, Action> middleStep(State.StateView stateView, History.HistoryView historyView) {
         HashMap<Integer, Action> actions = new HashMap<Integer, Action>();
+        int temp = 0;
         for(int unitId : stateView.getUnitIds(playernum)) {
         	Unit.UnitView unit = stateView.getUnit(unitId);
             String unitType = unit.getTemplateView().getName().toLowerCase();
+            
+            //Check if the turn is not the first turn, and the plan is not empty
+            if (stateView.getTurnNumber() != 0 && !plan.isEmpty()) {
+            	//Store the results of the previous turn's action in a Map
+                Map<Integer, ActionResult> actionResults = historyView.getCommandFeedback(playernum, stateView.getTurnNumber()-1);
+
+                //Iterate over the results
+                for (ActionResult result : actionResults.values()) {
+                	//If the last action completed successfully, then check what the next action is and pop it off
+                	//the stack
+                	if(unitType.equals("peasant") && (plan.peek().actionType() == "Deposit" || plan.peek().actionType() == "Harvest")
+                			&& result.getFeedback().equals(ActionFeedback.COMPLETED)) {
+                    	StripsAction act = plan.pop();
+                    	actions.put(peasantIdMap.get(unitId), createSepiaAction(act));
+                    }
+                	else if (unitType.equals("townhall") && plan.peek().actionType() == "BuildPeasant" 
+                			&& result.getFeedback().equals(ActionFeedback.COMPLETED)) {
+                    	StripsAction act = plan.pop();
+                    	actions.put(townhallId, createSepiaAction(act));
+                    }
+                }
+            }
+            //A separate case for the first turn, since there is no previous action, just pop the first move of the
+            //plan off the stack
+            else if (!plan.isEmpty()) {
+            	if(unitType.equals("peasant") && (plan.peek().actionType() == "Deposit" || plan.peek().actionType() == "Harvest")) {
+                	StripsAction act = plan.pop();
+                	actions.put(peasantIdMap.get(unitId), createSepiaAction(act));
+                }
+            	else if (unitType.equals("townhall") && plan.peek().actionType() == "BuildPeasant") {
+                	StripsAction act = plan.pop();
+                	actions.put(townhallId, createSepiaAction(act));
+                }
+            }
+            
         	//For each peasant, create a harvest or deposit action
-            if(unitType.equals("peasant") && (plan.peek().actionType() == "Deposit" || plan.peek().actionType() == "Harvest")) {
+            /*if(unitType.equals("peasant") && (plan.peek().actionType() == "Deposit" || plan.peek().actionType() == "Harvest")) {
             	//Check if it has completed an action or if is not performing an action
             	if(unit.getCurrentDurativeAction() == null || unit.getCurrentDurativeProgress() >= 1) {
             		StripsAction act = plan.pop();
@@ -109,7 +147,7 @@ public class PEAgent extends Agent {
             else if (unitType.equals("townhall") && plan.peek().actionType() == "BuildPeasant") {
             	StripsAction act = plan.pop();
             	actions.put(townhallId, createSepiaAction(act));
-            }
+            }*/
         }
         return actions;
     }
