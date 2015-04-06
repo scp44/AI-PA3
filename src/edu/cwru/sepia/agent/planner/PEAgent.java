@@ -126,6 +126,7 @@ public class PEAgent extends Agent {
                 			&& (isNewUnit || (result.getAction().getUnitId() == unitId && result.getFeedback().equals(ActionFeedback.COMPLETED)))) {
                     	StripsAction act = plan.pop();
                     	actions.put(peasantIdMap.get(unitId), createSepiaAction(act));
+                    	isNewUnit = false;
                     }
 
                 	if (unitType.equals("townhall") && plan.peek().actionType() == "BuildPeasant" 
@@ -172,10 +173,24 @@ public class PEAgent extends Agent {
      */
     private Action createSepiaAction(StripsAction action) {
     	if (action.actionType() == "Deposit") {
-    		return Action.createCompoundDeposit(peasantIdMap.get(1), townhallId);
+    		int uID = 0;
+    		if(action.getUnitIndex() == 1) {
+    			uID = 10;
+    		}
+    		else if(action.getUnitIndex() == 0) {
+    			uID = 1;
+    		}
+    		return Action.createCompoundDeposit(peasantIdMap.get(uID), townhallId);
     	}
     	else if (action.actionType() == "Harvest") {
-    		return Action.createCompoundGather(peasantIdMap.get(1), action.getID());
+    		int uID = 0;
+    		if(action.getUnitIndex() == 1) {
+    			uID = 10;
+    		}
+    		else if(action.getUnitIndex() == 0) {
+    			uID = 1;
+    		}
+    		return Action.createCompoundGather(peasantIdMap.get(uID), action.getID());
     	}
     	else if (action.actionType() == "BuildPeasant") {
     		return Action.createCompoundProduction(townhallId, peasantTemplateId);
