@@ -126,6 +126,7 @@ public class GameState implements Comparable<GameState> {
 			this.x = unitState.x;
 			this.y = unitState.y;
 			this.carriedResAmount = unitState.carriedResAmount;
+			this.resType = new String(unitState.resType);
 		}
 		/*private GameState getOuterType() {
 			return GameState.this;
@@ -331,7 +332,7 @@ public class GameState implements Comparable<GameState> {
             }
             //If the unit has 100 resources, then it can deposit
             if (units.get(i).carriedResAmount == 100) {
-            	if (units.get(i).resType == "Gold") {
+            	if (units.get(i).resType.equals("Gold")) {
             		GameState tempState = new GameState(this);
             		if(!tempState.prevActions.isEmpty()) {
             			tempState.prevActions.clear();
@@ -353,7 +354,7 @@ public class GameState implements Comparable<GameState> {
             		else
             			childStates.add(new GameState(tempState));
             	}
-            	else if(units.get(i).resType == "Wood") {
+            	else if(units.get(i).resType.equals("Wood")) {
             		GameState tempState = new GameState(this);
             		if(!tempState.prevActions.isEmpty()) {
             			tempState.prevActions.clear();
@@ -459,7 +460,7 @@ public class GameState implements Comparable<GameState> {
 		}*/
         //If the unit has 100 resources, then it can deposit
         if (this.units.get(unitIndex).carriedResAmount == 100) {
-        	if (this.units.get(unitIndex).resType == "Gold") {
+        	if (this.units.get(unitIndex).resType.equals("Gold")) {
         		tempState.units.get(unitIndex).x = this.townhallPos.x;
         		tempState.units.get(unitIndex).y = this.townhallPos.y;
         		tempState.collectedGold += units.get(unitIndex).carriedResAmount;
@@ -473,7 +474,7 @@ public class GameState implements Comparable<GameState> {
         		else
         			childStates.add(new GameState(tempState));
         	}
-        	else if(this.units.get(unitIndex).resType == "Wood") {
+        	else if(this.units.get(unitIndex).resType.equals("Wood")) {
         		tempState.units.get(unitIndex).x = this.townhallPos.x;
         		tempState.units.get(unitIndex).y = this.townhallPos.y;
         		tempState.collectedWood += units.get(unitIndex).carriedResAmount;
