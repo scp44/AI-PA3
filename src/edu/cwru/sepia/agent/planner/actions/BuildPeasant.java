@@ -24,8 +24,7 @@ public class BuildPeasant implements StripsAction {
 
 	@Override
 	public String actionType() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.actionType;
 	}
 
 	@Override
@@ -42,6 +41,13 @@ public class BuildPeasant implements StripsAction {
 	
 	public String toString() {
 		return "BuildPeasant()";
+	}
+	
+	//Returns a deep copy of this action object
+	public BuildPeasant clone() {
+		BuildPeasant dummy = new BuildPeasant(this.townhallID);
+		dummy.actionType = "BuildPeasant";
+		return dummy;
 	}
 
 }

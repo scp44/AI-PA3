@@ -186,6 +186,9 @@ public class PlannerAgent extends Agent {
         		
         	List<GameState> nextStateList;	
        		nextStateList = current.generateChildren();
+       		if(current.units.size() > 1) {
+       			int j = 0;
+       		}
 
        		for(int x = 0; x < nextStateList.size() && nextStateList.get(x) != null; x++)
        		{
@@ -234,12 +237,14 @@ public class PlannerAgent extends Agent {
     	if (current.parent == null) {
     		return path;
     	}
+    	System.out.println(current.prevActions.size());
     	for(int k = 0; k < current.prevActions.size(); k++) {
     		path.add(current.prevActions.get(k));
     	}
     	
     	while(!(current.parent.equals(start)))
     	{
+    		System.out.println(current.prevActions.size());
     		current = current.parent;
     		for(int k = 0; k < current.prevActions.size(); k++) {
         		path.add(current.prevActions.get(k));

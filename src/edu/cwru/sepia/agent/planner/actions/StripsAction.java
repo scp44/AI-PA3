@@ -47,5 +47,5 @@ public interface StripsAction {
     //A helper method that returns the index of the peasant executing this action
     public int getUnitIndex();
 
-    
+    public StripsAction clone();
 }

@@ -52,5 +52,12 @@ public class HarvestAction implements StripsAction {
 		//of the resulting state of applying this action 
 		return null;
 	}
+	
+	//Returns a deep copy of this action object
+	public HarvestAction clone() {
+		HarvestAction dummy = new HarvestAction(this.resLoc, this.unitIndex, this.mapX, this.mapY, this.carriedAmount);
+		dummy.actionType = "Harvest";
+		return dummy;
+	}
 
 }

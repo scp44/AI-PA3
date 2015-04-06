@@ -59,5 +59,12 @@ public class DepositAction implements StripsAction {
 		//		&& carriedAmount > 0);
 		return false;
 	}
+	
+	
+	public DepositAction clone() {
+		DepositAction dummy = new DepositAction(this.townHallLoc, this.unitIndex, this.resType, this.mapX, this.mapY, this.carriedAmount);
+		dummy.actionType = "Deposit";
+		return dummy;
+	}
 
 }

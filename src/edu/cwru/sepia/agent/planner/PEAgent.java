@@ -97,25 +97,38 @@ public class PEAgent extends Agent {
     public Map<Integer, Action> middleStep(State.StateView stateView, History.HistoryView historyView) {
         HashMap<Integer, Action> actions = new HashMap<Integer, Action>();
         int temp = 0;
+        if(stateView.getUnitIds(playernum).size() > 2) {
+        	int j = 0;
+        }
         for(int unitId : stateView.getUnitIds(playernum)) {
         	Unit.UnitView unit = stateView.getUnit(unitId);
             String unitType = unit.getTemplateView().getName().toLowerCase();
-            
+            if(peasantIdMap.get(unitId) == null){
+            	peasantIdMap.put(unitId, unitId);
+            }
             //Check if the turn is not the first turn, and the plan is not empty
             if (stateView.getTurnNumber() != 0 && !plan.isEmpty()) {
             	//Store the results of the previous turn's action in a Map
                 Map<Integer, ActionResult> actionResults = historyView.getCommandFeedback(playernum, stateView.getTurnNumber()-1);
-
+                boolean isNewUnit = true;
+                for (ActionResult result : actionResults.values()) {
+                	if(unitType.equals("peasant") && (plan.peek().actionType() == "Deposit" || plan.peek().actionType() == "Harvest") 
+                			&& result.getAction().getUnitId() == unitId) {
+                		isNewUnit = false;
+                	}
+                }
                 //Iterate over the results
                 for (ActionResult result : actionResults.values()) {
+                	
                 	//If the last action completed successfully, then check what the next action is and pop it off
                 	//the stack
                 	if(unitType.equals("peasant") && (plan.peek().actionType() == "Deposit" || plan.peek().actionType() == "Harvest")
-                			&& result.getFeedback().equals(ActionFeedback.COMPLETED)) {
+                			&& (isNewUnit || (result.getAction().getUnitId() == unitId && result.getFeedback().equals(ActionFeedback.COMPLETED)))) {
                     	StripsAction act = plan.pop();
                     	actions.put(peasantIdMap.get(unitId), createSepiaAction(act));
                     }
-                	else if (unitType.equals("townhall") && plan.peek().actionType() == "BuildPeasant" 
+
+                	if (unitType.equals("townhall") && plan.peek().actionType() == "BuildPeasant" 
                 			&& result.getFeedback().equals(ActionFeedback.COMPLETED)) {
                     	StripsAction act = plan.pop();
                     	actions.put(townhallId, createSepiaAction(act));
