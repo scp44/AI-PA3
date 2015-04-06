@@ -163,8 +163,8 @@ public class GameState implements Comparable<GameState> {
 		}
 		//Are you sure you want to copy the GameState's parent pointer as well???
 		this.parent = state;
-		this.cost = this.getCost() + this.parent.cost;
-		this.estTotalCost = this.cost + this.heuristic();
+		//this.cost = this.getCost() + this.parent.cost;
+		//this.estTotalCost = this.cost + this.heuristic();
 		//This is the only case where we can directly shallow copy the parent pointer
 		//because the townhall location is constant for all game states
 		this.townhallPos = state.townhallPos;
@@ -294,7 +294,11 @@ public class GameState implements Comparable<GameState> {
             			childStates = getSubChildren(i + 1, tempState, childStates);
             		}
             		else
-            			childStates.add(new GameState(tempState));
+            		{
+            			tempState.cost = tempState.getCost() + tempState.heuristic();
+            			//childStates.add(new GameState(tempState));
+            			childStates.add(tempState);
+            		}
             	}
             }
             //Same thing for wood
@@ -327,7 +331,11 @@ public class GameState implements Comparable<GameState> {
             			childStates = getSubChildren(i + 1, tempState, childStates);
             		}
             		else
-            			childStates.add(new GameState(tempState));
+            		{
+            			tempState.cost = tempState.getCost() + tempState.heuristic();
+            			//childStates.add(new GameState(tempState));
+            			childStates.add(tempState);
+            		}
             	}
             }
             //If the unit has 100 resources, then it can deposit
@@ -352,7 +360,11 @@ public class GameState implements Comparable<GameState> {
             			childStates = getSubChildren(i + 1, tempState, childStates);
             		}
             		else
-            			childStates.add(new GameState(tempState));
+            		{
+            			tempState.cost = tempState.getCost() + tempState.heuristic();
+            			//childStates.add(new GameState(tempState));
+            			childStates.add(tempState);
+            		}
             	}
             	else if(units.get(i).resType.equals("Wood")) {
             		GameState tempState = new GameState(this);
@@ -375,7 +387,11 @@ public class GameState implements Comparable<GameState> {
             			childStates = getSubChildren(i + 1, tempState, childStates);
             		}
             		else
-            			childStates.add(new GameState(tempState));
+            		{
+            			tempState.cost = tempState.getCost() + tempState.heuristic();
+            			//childStates.add(new GameState(tempState));
+            			childStates.add(tempState);
+            		}
             	}
             }
     	//}
@@ -423,7 +439,10 @@ public class GameState implements Comparable<GameState> {
         		}
         		//If there are no more units, add this state to the list
         		else
+        		{
+        			tempState.cost = tempState.getCost() + tempState.heuristic();
         			childStates.add(new GameState(tempState));
+        		}
         	}
         }
         //Same thing for wood
@@ -451,7 +470,10 @@ public class GameState implements Comparable<GameState> {
         		}
         		//If there are no more units, add this state to the list
         		else
+        		{
+        			tempState.cost = tempState.getCost() + tempState.heuristic();
         			childStates.add(new GameState(tempState));
+        		}
         		
         	}
         }
@@ -472,7 +494,10 @@ public class GameState implements Comparable<GameState> {
         		}
         		//If there are no more units, add this state to the list
         		else
+        		{
+        			tempState.cost = tempState.getCost() + tempState.heuristic();
         			childStates.add(new GameState(tempState));
+        		}
         	}
         	else if(this.units.get(unitIndex).resType.equals("Wood")) {
         		tempState.units.get(unitIndex).x = this.townhallPos.x;
@@ -486,7 +511,10 @@ public class GameState implements Comparable<GameState> {
         		}
         		//If there are no more units, add this state to the list
         		else
+        		{
+        			tempState.cost = tempState.getCost() + tempState.heuristic();
         			childStates.add(new GameState(tempState));
+        		}
         	}
         }
         
@@ -501,22 +529,16 @@ public class GameState implements Comparable<GameState> {
      * @return The value estimated remaining cost to reach a goal state from this state.
      */
     public double heuristic() {
-        // TODO: Implement me!
     	double heuristic = 0;
-    	//if(this.prevAction = Move(peasant, loc))
-    		//heuristic = Math.max(Math.abs(loc.x-peasant.x), Math.abs(loc.y-peasant.y));
-    	//else if(this.prevAction = gather(resource)){
-    		//if(resource == gold && collectedGold >= requiredGold)
-    			//heuristic = 999999999;
-    		//else if(resource == wood && collectedWood >= requiredWood)
-    			//heuristic = 999999999;
-    		//else
-    			//heuristic = 1;	//good thing to do. Yay
-    	//}
-    	//else //depositing
-    		//heuristic = 1;
-    	//return  -0.1 * this.collectedGold + (-0.1 * this.collectedWood) + 100;
-    	return 100 * this.foodAmount - 0.2 * collectedGold - 0.2 * collectedWood;
+    	if(collectedGold >= requiredGold)
+    		heuristic = 9999999;
+    	else if (collectedWood >= requiredWood)
+    		heuristic = 9999999;
+    	else
+    		heuristic = requiredGold - collectedGold + requiredWood - collectedWood;
+    	
+    	return heuristic;
+    	//return 100 * this.foodAmount - 0.2 * collectedGold - 0.2 * collectedWood;
     }
 
     /**
