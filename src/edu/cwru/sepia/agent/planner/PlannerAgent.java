@@ -173,9 +173,7 @@ public class PlannerAgent extends Agent {
         	}
         		
         	current = openList.poll();
-        	if (current.foodAmount == 0) {
-        		int j = 0;
-        	}
+
 	       	closedList.add(current);
 	        	
         	if (current.isGoal())
@@ -189,9 +187,7 @@ public class PlannerAgent extends Agent {
         		
         	List<GameState> nextStateList;	
        		nextStateList = current.generateChildren();
-       		if(current.units.size() > 1) {
-       			int j = 0;
-       		}
+
 
        		for(int x = 0; x < nextStateList.size() && nextStateList.get(x) != null; x++)
        		{

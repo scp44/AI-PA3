@@ -259,9 +259,7 @@ public class GameState implements Comparable<GameState> {
     	List<GameState> childStates = new ArrayList<GameState>();
     	//for (int i = 0; i < units.size(); i++) {
     	int i = 0;
-    	if(units.size() > 1 && this.collectedGold >= 400) {
-    		int j = 0;
-    	}
+
     		//Check if the peasant is not next to a resource and is not carrying anything, 
     		//then add the move to harvest that resource
             for (Position p : goldLocations) {
@@ -394,25 +392,13 @@ public class GameState implements Comparable<GameState> {
             		}
             	}
             }
-    	//}
-    	
-    	//Check if there's enough resources to build a peasant
-    	/*if(this.collectedGold >= 400 && this.foodAmount > 0) {
-    		GameState tempState = new GameState(this);
-    		tempState.collectedGold -= 400;
-    		tempState.foodAmount -= 1;
-    		tempState.units.add(this.units.size(), new UnitState(this.townhallPos.x, this.townhallPos.y, 0, "None"));
-    		tempState.prevActions.add(new BuildPeasant(this.townhallID));
-    		childStates.add(tempState);
-    	}*/
 
-            if(units.size() > 1) {
-        		int j = 0;
-        	}
+
         return childStates;
     }
 
     
+    //This is a recursive function that gets called to iterate over multiple peasants
     public List<GameState> getSubChildren(int unitIndex, GameState tempState, List<GameState> childStates) {
     	boolean isBuildingPeasant = false;
 		for(StripsAction action : tempState.prevActions) {
@@ -420,15 +406,23 @@ public class GameState implements Comparable<GameState> {
 				isBuildingPeasant = true;
 			}
 		}
-    	if(unitIndex == 2) {
-    		int j = 0;
-    	}
-    	HashSet<Position> currentGoldLocations = new HashSet<Position>();
+		int startColGold = tempState.collectedGold;
+		int startColWood = tempState.collectedWood;
+
+    	/*HashSet<Position> currentGoldLocations = new HashSet<Position>();
     	for(Position tempPos : tempState.goldLocations) {
-			//currentGoldLocations.a
-		}
+    		currentGoldLocations.add(new Position(tempPos.x, tempPos.y, tempPos.type, tempPos.resourceID, tempPos.amountLeft));
+		}*/
     	for (Position p : goldLocations) {
-    		
+    		//reset the tempState's goldLocations to their original amounts
+        	/*for(Position tempPos : tempState.goldLocations) {
+        		for(Position curPos : currentGoldLocations) {
+        			if (tempPos.x == curPos.x && tempPos.y == curPos.y) {
+        				tempPos.amountLeft = curPos.amountLeft;
+        			}
+        		}
+    		}*/
+        	
     		/*boolean isBuildingPeasant = false;
     		for(StripsAction action : tempState.prevActions) {
     			if(action.getUnitIndex() == 0) {
@@ -465,8 +459,22 @@ public class GameState implements Comparable<GameState> {
         		}
         	}
         }
+    	
+    	/*HashSet<Position> currentWoodLocations = new HashSet<Position>();
+    	for(Position tempPos : tempState.woodLocations) {
+    		currentWoodLocations.add(new Position(tempPos.x, tempPos.y, tempPos.type, tempPos.resourceID, tempPos.amountLeft));
+		}*/
+    	
         //Same thing for wood
         for (Position p : woodLocations) {
+        	//reset the tempState's woodLocations to their original amounts
+        	/*for(Position tempPos : tempState.woodLocations) {
+        		for(Position curPos : currentWoodLocations) {
+        			if (tempPos.x == curPos.x && tempPos.y == curPos.y) {
+        				tempPos.amountLeft = curPos.amountLeft;
+        			}
+        		}
+    		}*/
         	/*boolean isBuildingPeasant = false;
     		for(StripsAction action : tempState.prevActions) {
     			if(action.getUnitIndex() == 0) {
@@ -498,6 +506,7 @@ public class GameState implements Comparable<GameState> {
         		else
         		{
         			tempState.cost = tempState.getCost() + tempState.heuristic();
+
         			childStates.add(new GameState(tempState));
         		}
         		
@@ -543,9 +552,7 @@ public class GameState implements Comparable<GameState> {
         		}
         	}
         }
-        if(tempState.prevActions.size() > 3) {
-        	int j = 0;
-        }
+
         return childStates;
     }
     /**
@@ -565,8 +572,8 @@ public class GameState implements Comparable<GameState> {
     	else
     		heuristic = requiredGold - collectedGold + requiredWood - collectedWood;
     	
-    	return heuristic;
-    	//return 100 * this.foodAmount - 0.2 * collectedGold - 0.2 * collectedWood;
+    	//return heuristic;
+    	return 100 * this.foodAmount + 0.2 * requiredGold - 0.2 * collectedGold + 0.2 * requiredWood - 0.2 * collectedWood;
     }
 
     /**

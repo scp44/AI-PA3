@@ -99,10 +99,7 @@ public class PEAgent extends Agent {
     public Map<Integer, Action> middleStep(State.StateView stateView, History.HistoryView historyView) {
         HashMap<Integer, Action> actions = new HashMap<Integer, Action>();
         ArrayList<Integer> unitIds = new ArrayList<Integer>(stateView.getUnitIds(playernum));
-        int temp = 0;
-        if(stateView.getUnitIds(playernum).size() > 3) {
-        	int j = 0;
-        }
+
         for(int unitId : stateView.getUnitIds(playernum)) {
         	Unit.UnitView unit = stateView.getUnit(unitId);
             String unitType = unit.getTemplateView().getName().toLowerCase();
@@ -120,7 +117,7 @@ public class PEAgent extends Agent {
                 		actions.put(peasantIdMap.get(result.getAction().getUnitId()), createSepiaAction(this.prevActs.get(result.getAction().getUnitId())));
                 	}
                 		//System.out.println("Action FAILED!!");
-                	if(unitType.equals("peasant") && (plan.peek().actionType() == "Deposit" || plan.peek().actionType() == "Harvest") 
+                	if(unitType.equals("peasant") && !plan.isEmpty() && (plan.peek().actionType() == "Deposit" || plan.peek().actionType() == "Harvest") 
                 			&& result.getAction().getUnitId() == unitId) {
                 		isNewUnit = false;
                 	}
@@ -140,7 +137,7 @@ public class PEAgent extends Agent {
                 	else if(unitIds.size() > 3 && unitId == unitIds.get(3)) {
                 		desiredPlanIndex = 2;
                 	}
-                	if(unitType.equals("peasant") && (plan.peek().actionType() == "Deposit" || plan.peek().actionType() == "Harvest") && plan.peek().getUnitIndex() == desiredPlanIndex 
+                	if(unitType.equals("peasant") && !plan.isEmpty() && (plan.peek().actionType() == "Deposit" || plan.peek().actionType() == "Harvest") && plan.peek().getUnitIndex() == desiredPlanIndex 
                 			&& (isNewUnit || (result.getAction().getUnitId() == unitId && result.getFeedback().equals(ActionFeedback.COMPLETED)))) {
                 		//Pop off the strips action from the stack if conditions are met
                     	StripsAction act = plan.pop();
@@ -150,7 +147,7 @@ public class PEAgent extends Agent {
                     	isNewUnit = false;
                     }
 
-                	if (unitType.equals("townhall") && plan.peek().actionType() == "BuildPeasant" 
+                	if (unitType.equals("townhall") && !plan.isEmpty() && plan.peek().actionType() == "BuildPeasant" 
                 			&& result.getFeedback().equals(ActionFeedback.COMPLETED)) {
                     	StripsAction act = plan.pop();
                     	
@@ -171,19 +168,6 @@ public class PEAgent extends Agent {
                 }
             }
             
-        	//For each peasant, create a harvest or deposit action
-            /*if(unitType.equals("peasant") && (plan.peek().actionType() == "Deposit" || plan.peek().actionType() == "Harvest")) {
-            	//Check if it has completed an action or if is not performing an action
-            	if(unit.getCurrentDurativeAction() == null || unit.getCurrentDurativeProgress() >= 1) {
-            		StripsAction act = plan.pop();
-            		actions.put(peasantIdMap.get(unitId), createSepiaAction(act));
-            	}
-            }
-            //Else, for the townhall, create a buildpeasant action
-            else if (unitType.equals("townhall") && plan.peek().actionType() == "BuildPeasant") {
-            	StripsAction act = plan.pop();
-            	actions.put(townhallId, createSepiaAction(act));
-            }*/
         }
         return actions;
     }
@@ -195,6 +179,7 @@ public class PEAgent extends Agent {
      */
     private Action createSepiaAction(StripsAction action) {
     	if (action.actionType() == "Deposit") {
+    		//Get the correct unit ID that sepia uses 
     		int uID = 0;
     		if(action.getUnitIndex() == 1) {
     			uID = 10;
@@ -208,6 +193,7 @@ public class PEAgent extends Agent {
     		return Action.createCompoundDeposit(peasantIdMap.get(uID), townhallId);
     	}
     	else if (action.actionType() == "Harvest") {
+    		//Get the correct unit ID that sepia uses 
     		int uID = 0;
     		if(action.getUnitIndex() == 1) {
     			uID = 10;
