@@ -53,7 +53,7 @@ public class GameState implements Comparable<GameState> {
 	public double cost, estTotalCost;
 	public ArrayList<StripsAction> prevActions = new ArrayList<StripsAction>();
 	private Position townhallPos;
-	private int foodAmount;
+	public int foodAmount;
 	private int townhallID;
 
 	
@@ -259,7 +259,7 @@ public class GameState implements Comparable<GameState> {
     	List<GameState> childStates = new ArrayList<GameState>();
     	//for (int i = 0; i < units.size(); i++) {
     	int i = 0;
-    	if(units.size() > 1) {
+    	if(units.size() > 1 && this.collectedGold >= 400) {
     		int j = 0;
     	}
     		//Check if the peasant is not next to a resource and is not carrying anything, 
@@ -270,7 +270,7 @@ public class GameState implements Comparable<GameState> {
             		if(!tempState.prevActions.isEmpty()) {
             			tempState.prevActions.clear();
             		}
-            		if(this.collectedGold >= 400 && this.foodAmount > 0) {
+            		if(this.collectedGold >= 400 && this.foodAmount > 0 && buildPeasant == true) {
                 		tempState.collectedGold -= 400;
                 		tempState.foodAmount -= 1;
                 		tempState.units.add(this.units.size(), new UnitState(this.townhallPos.x, this.townhallPos.y, 0, "None"));
@@ -308,7 +308,7 @@ public class GameState implements Comparable<GameState> {
             		if(!tempState.prevActions.isEmpty()) {
             			tempState.prevActions.clear();
             		}
-            		if(this.collectedGold >= 400 && this.foodAmount > 0) {
+            		if(this.collectedGold >= 400 && this.foodAmount > 0 && buildPeasant == true) {
                 		tempState.collectedGold -= 400;
                 		tempState.foodAmount -= 1;
                 		tempState.units.add(this.units.size(), new UnitState(this.townhallPos.x, this.townhallPos.y, 0, "None"));
@@ -345,7 +345,7 @@ public class GameState implements Comparable<GameState> {
             		if(!tempState.prevActions.isEmpty()) {
             			tempState.prevActions.clear();
             		}
-            		if(this.collectedGold >= 400 && this.foodAmount > 0) {
+            		if(this.collectedGold >= 400 && this.foodAmount > 0 && buildPeasant == true) {
                 		tempState.collectedGold -= 400;
                 		tempState.foodAmount -= 1;
                 		tempState.units.add(this.units.size(), new UnitState(this.townhallPos.x, this.townhallPos.y, 0, "None"));
@@ -353,7 +353,7 @@ public class GameState implements Comparable<GameState> {
                 	}
             		tempState.units.get(i).x = this.townhallPos.x;
             		tempState.units.get(i).y = this.townhallPos.y;
-            		tempState.collectedGold += units.get(i).carriedResAmount;
+            		tempState.collectedGold += 100;
             		tempState.prevActions.add(i, new DepositAction(townhallPos, i, "Gold", mapXExtent, mapYExtent, units.get(i).carriedResAmount));
             		tempState.units.get(i).carriedResAmount = 0;
             		if(i + 1 < units.size()) {
@@ -366,13 +366,13 @@ public class GameState implements Comparable<GameState> {
             			childStates.add(tempState);
             		}
             	}
-            	else if(units.get(i).resType.equals("Wood")) {
+            	else if(units.get(i).resType.equals("Wood") ) {
             		GameState tempState = new GameState(this);
             		if(!tempState.prevActions.isEmpty()) {
             			tempState.prevActions.clear();
             		}
             		//Check if can make a new peasant
-            		if(this.collectedGold >= 400 && this.foodAmount > 0) {
+            		if(this.collectedGold >= 400 && this.foodAmount > 0 && buildPeasant == true) {
                 		tempState.collectedGold -= 400;
                 		tempState.foodAmount -= 1;
                 		tempState.units.add(this.units.size(), new UnitState(this.townhallPos.x, this.townhallPos.y, 0, "None"));
@@ -380,7 +380,7 @@ public class GameState implements Comparable<GameState> {
                 	}
             		tempState.units.get(i).x = this.townhallPos.x;
             		tempState.units.get(i).y = this.townhallPos.y;
-            		tempState.collectedWood += units.get(i).carriedResAmount;
+            		tempState.collectedWood += 100;
             		tempState.prevActions.add(i, new DepositAction(townhallPos, i, "Wood", mapXExtent, mapYExtent, units.get(i).carriedResAmount));
             		tempState.units.get(i).carriedResAmount = 0;
             		if(i + 1 < units.size()) {
@@ -414,8 +414,28 @@ public class GameState implements Comparable<GameState> {
 
     
     public List<GameState> getSubChildren(int unitIndex, GameState tempState, List<GameState> childStates) {
+    	boolean isBuildingPeasant = false;
+		for(StripsAction action : tempState.prevActions) {
+			if(action.actionType().equals("BuildPeasant")) {
+				isBuildingPeasant = true;
+			}
+		}
+    	if(unitIndex == 2) {
+    		int j = 0;
+    	}
+    	HashSet<Position> currentGoldLocations = new HashSet<Position>();
+    	for(Position tempPos : tempState.goldLocations) {
+			//currentGoldLocations.a
+		}
     	for (Position p : goldLocations) {
-    		if(tempState.prevActions.size() > unitIndex) {
+    		
+    		/*boolean isBuildingPeasant = false;
+    		for(StripsAction action : tempState.prevActions) {
+    			if(action.getUnitIndex() == 0) {
+    				isBuildingPeasant = true;
+    			}
+    		}*/
+    		if(tempState.prevActions.size() > unitIndex && !isBuildingPeasant) {
     			tempState.prevActions.remove(unitIndex);
     		}
         	if (!p.isAdjacent(new Position(units.get(unitIndex).x, units.get(unitIndex).y)) && units.get(unitIndex).carriedResAmount == 0 && p.amountLeft > 0) {
@@ -447,7 +467,13 @@ public class GameState implements Comparable<GameState> {
         }
         //Same thing for wood
         for (Position p : woodLocations) {
-        	if(tempState.prevActions.size() > unitIndex) {
+        	/*boolean isBuildingPeasant = false;
+    		for(StripsAction action : tempState.prevActions) {
+    			if(action.getUnitIndex() == 0) {
+    				isBuildingPeasant = true;
+    			}
+    		}*/
+        	if(tempState.prevActions.size() > unitIndex && !isBuildingPeasant) {
     			tempState.prevActions.remove(unitIndex);
     		}
         	if (!p.isAdjacent(new Position(units.get(unitIndex).x, units.get(unitIndex).y)) && units.get(unitIndex).carriedResAmount == 0 && p.amountLeft > 0) {
@@ -485,7 +511,7 @@ public class GameState implements Comparable<GameState> {
         	if (this.units.get(unitIndex).resType.equals("Gold")) {
         		tempState.units.get(unitIndex).x = this.townhallPos.x;
         		tempState.units.get(unitIndex).y = this.townhallPos.y;
-        		tempState.collectedGold += units.get(unitIndex).carriedResAmount;
+        		tempState.collectedGold += 100;
         		tempState.prevActions.add(unitIndex, new DepositAction(townhallPos, unitIndex, "Gold", mapXExtent, mapYExtent, units.get(unitIndex).carriedResAmount));
         		tempState.units.get(unitIndex).carriedResAmount = 0;
         		//Recursively call getSubChildren on any additional units
@@ -502,7 +528,7 @@ public class GameState implements Comparable<GameState> {
         	else if(this.units.get(unitIndex).resType.equals("Wood")) {
         		tempState.units.get(unitIndex).x = this.townhallPos.x;
         		tempState.units.get(unitIndex).y = this.townhallPos.y;
-        		tempState.collectedWood += units.get(unitIndex).carriedResAmount;
+        		tempState.collectedWood += 100;
         		tempState.prevActions.add(unitIndex, new DepositAction(townhallPos, unitIndex, "Wood", mapXExtent, mapYExtent, units.get(unitIndex).carriedResAmount));
         		tempState.units.get(unitIndex).carriedResAmount = 0;
         		//Recursively call getSubChildren on any additional units
@@ -517,7 +543,9 @@ public class GameState implements Comparable<GameState> {
         		}
         	}
         }
-        
+        if(tempState.prevActions.size() > 3) {
+        	int j = 0;
+        }
         return childStates;
     }
     /**

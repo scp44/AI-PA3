@@ -173,6 +173,9 @@ public class PlannerAgent extends Agent {
         	}
         		
         	current = openList.poll();
+        	if (current.foodAmount == 0) {
+        		int j = 0;
+        	}
 	       	closedList.add(current);
 	        	
         	if (current.isGoal())

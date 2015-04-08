@@ -13,6 +13,7 @@ import edu.cwru.sepia.environment.model.state.Unit;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -25,7 +26,8 @@ public class PEAgent extends Agent {
     // The plan being executed
     private Stack<StripsAction> plan = null;
 
-    
+    ArrayList<Integer> unitIds;
+    HashMap<Integer, StripsAction> prevActs = new HashMap<Integer, StripsAction>();
     // maps the real unit Ids to the plan's unit ids
     // when you're planning you won't know the true unit IDs that sepia assigns. So you'll use placeholders (1, 2, 3).
     // this maps those placeholders to the actual unit IDs.
@@ -96,8 +98,9 @@ public class PEAgent extends Agent {
     @Override
     public Map<Integer, Action> middleStep(State.StateView stateView, History.HistoryView historyView) {
         HashMap<Integer, Action> actions = new HashMap<Integer, Action>();
+        ArrayList<Integer> unitIds = new ArrayList<Integer>(stateView.getUnitIds(playernum));
         int temp = 0;
-        if(stateView.getUnitIds(playernum).size() > 2) {
+        if(stateView.getUnitIds(playernum).size() > 3) {
         	int j = 0;
         }
         for(int unitId : stateView.getUnitIds(playernum)) {
@@ -112,6 +115,11 @@ public class PEAgent extends Agent {
                 Map<Integer, ActionResult> actionResults = historyView.getCommandFeedback(playernum, stateView.getTurnNumber()-1);
                 boolean isNewUnit = true;
                 for (ActionResult result : actionResults.values()) {
+                	if(result.getFeedback().equals(ActionFeedback.FAILED)) {
+                		//In the case that an action fails, we repeat the action
+                		actions.put(peasantIdMap.get(result.getAction().getUnitId()), createSepiaAction(this.prevActs.get(result.getAction().getUnitId())));
+                	}
+                		//System.out.println("Action FAILED!!");
                 	if(unitType.equals("peasant") && (plan.peek().actionType() == "Deposit" || plan.peek().actionType() == "Harvest") 
                 			&& result.getAction().getUnitId() == unitId) {
                 		isNewUnit = false;
@@ -122,9 +130,22 @@ public class PEAgent extends Agent {
                 	
                 	//If the last action completed successfully, then check what the next action is and pop it off
                 	//the stack
-                	if(unitType.equals("peasant") && (plan.peek().actionType() == "Deposit" || plan.peek().actionType() == "Harvest")
+                	int desiredPlanIndex = 0;
+                	if(unitIds.size() > 2 && unitId == unitIds.get(2)) {
+                		desiredPlanIndex = 1;
+                	}
+                	else if(unitIds.size() > 1 && unitId == unitIds.get(1)) {
+                		desiredPlanIndex = 0;
+                	}
+                	else if(unitIds.size() > 3 && unitId == unitIds.get(3)) {
+                		desiredPlanIndex = 2;
+                	}
+                	if(unitType.equals("peasant") && (plan.peek().actionType() == "Deposit" || plan.peek().actionType() == "Harvest") && plan.peek().getUnitIndex() == desiredPlanIndex 
                 			&& (isNewUnit || (result.getAction().getUnitId() == unitId && result.getFeedback().equals(ActionFeedback.COMPLETED)))) {
+                		//Pop off the strips action from the stack if conditions are met
                     	StripsAction act = plan.pop();
+                    	//store this action in a hashmap - in case it fails, we can repeat it
+                    	this.prevActs.put(unitId, act);
                     	actions.put(peasantIdMap.get(unitId), createSepiaAction(act));
                     	isNewUnit = false;
                     }
@@ -132,6 +153,7 @@ public class PEAgent extends Agent {
                 	if (unitType.equals("townhall") && plan.peek().actionType() == "BuildPeasant" 
                 			&& result.getFeedback().equals(ActionFeedback.COMPLETED)) {
                     	StripsAction act = plan.pop();
+                    	
                     	actions.put(townhallId, createSepiaAction(act));
                     }
                 }
@@ -180,6 +202,9 @@ public class PEAgent extends Agent {
     		else if(action.getUnitIndex() == 0) {
     			uID = 1;
     		}
+    		else if(action.getUnitIndex() == 2) {
+    			uID = 11;
+    		}
     		return Action.createCompoundDeposit(peasantIdMap.get(uID), townhallId);
     	}
     	else if (action.actionType() == "Harvest") {
@@ -189,6 +214,9 @@ public class PEAgent extends Agent {
     		}
     		else if(action.getUnitIndex() == 0) {
     			uID = 1;
+    		}
+    		else if(action.getUnitIndex() == 2) {
+    			uID = 11;
     		}
     		return Action.createCompoundGather(peasantIdMap.get(uID), action.getID());
     	}
