@@ -11,6 +11,8 @@ DepositAction.java
 HarvestAction.java
 This README
 
+NOTE: For multiple peasants and their actions, I am creating multiple StripsActions and putting them on the stack, and each StripsAction specifies which peasant id should execute that action.
+
 GameState.java Notes:
 * UnitState class to keep track of the different peasants and their states
 * generateChildren() returns a list of all possible states resulting from actions possible from the current states
