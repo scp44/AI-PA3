@@ -94,51 +94,6 @@ public class PlannerAgent extends Agent {
     			return 1;
     	}
     }
-    
-    class PriorityQueueList extends PriorityQueue<GameState>
-    {
-    	/*public PriorityQueueList(int initLength)
-    	{
-    		super(initLength, new OpenListCompare());
-    	}*/
-    	
-
-    	public double nodeCost(GameState loc) {
-    		/*if (this.isEmpty()) 
-        		return 0;
-        	Iterator<GameState> it = this.iterator();
-        	while (it.hasNext()) {
-        		GameState location = it.next();
-    			if(location.x == loc.x && location.y == loc.y) {
-    				return location.cost;
-    			}
-    	    }*/
-        	return 0;
-    	}
-    	
-    	
-    	/**
-    	 * Removes the previous entry for the specified location and replaces
-    	 * it with the new one to the queue.
-    	 * 
-    	 * @param loc
-    	 */
-    	public void update(GameState loc)
-    	{
-    		/*if (this.isEmpty()) 
-        		return;
-        	Iterator<GameState> it = this.iterator();
-        	while (it.hasNext()) {
-        		GameState location = it.next();
-    			if(location.x == loc.x && location.y == loc.y) {
-    				this.remove(location);
-    				this.add(loc);
-    				return;
-    			}
-    	    }*/
-        	return;
-    	}
-    }
 
     /**
      * Perform an A*  of the game graph. This should return your plan as a stack of actions. This is essentially
@@ -149,7 +104,6 @@ public class PlannerAgent extends Agent {
      * @return The plan or null if no plan is found.
      */
     private Stack<StripsAction> Astar(GameState startState) {
-        // TODO: Implement me!
     	System.out.println("Astar called");
     	PriorityQueue<GameState> openList = new PriorityQueue<GameState>(new OpenListCompare());
         Set<GameState> closedList = new HashSet<GameState>();
@@ -166,7 +120,6 @@ public class PlannerAgent extends Agent {
         while(!openList.isEmpty())
         {
         	//remove invalid nodes from the list until first valid one is found
-        	//may not need this function if all goes according to plan...
         	while(openList.peek().estTotalCost == -1)
         	{
         		openList.remove();

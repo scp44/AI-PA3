@@ -245,8 +245,6 @@ public class GameState implements Comparable<GameState> {
      */
     public boolean isGoal() {
         return (this.collectedGold >= this.requiredGold && this.collectedWood >= this.requiredWood);
-    	//return this.collectedGold >= this.requiredGold;
-
     }
 
     /**
