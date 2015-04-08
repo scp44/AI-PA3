@@ -404,8 +404,7 @@ public class GameState implements Comparable<GameState> {
 				isBuildingPeasant = true;
 			}
 		}
-		int startColGold = tempState.collectedGold;
-		int startColWood = tempState.collectedWood;
+
 
     	/*HashSet<Position> currentGoldLocations = new HashSet<Position>();
     	for(Position tempPos : tempState.goldLocations) {
